@@ -1,8 +1,9 @@
 const express = require('express');
 const helmet = require('helmet');
 const expressEnforcesSSL = require('express-enforces-ssl');
-const PORT = process.env.PORT || 3001;
 const { Client } = require('pg');
+
+const PORT = process.env.PORT || 3001;
 
 // configure database connection based on environment
 if (PORT === 3001) {
@@ -30,13 +31,16 @@ client.query('SELECT * FROM test_table;', (err, res) => {
 
 const app = express();
 
+// configuration for Heroku / enforce ssl
+// app.enable('trust proxy');
+// app.use(expressEnforcesSSL);
+
 // Initialize an express app with some security defaults
 app
   .use(https)
   .use(helmet());
 
 // Application-specific routes
-// Add your own routes here!
 app.get('/example-path', async (req, res, next) => {
   res.json({ message: "Hello NKO World! This text came from the server. Woah!" });
 });
@@ -71,7 +75,7 @@ function notfound(req, res, next) {
 
 function errors(err, req, res, next) {
   console.log(err);
-  res.status(500).send('something went wrong');
+  res.status(500).send('Error: something went wrong. Hackathon, nobody knows, etc.');
 }
 
 app.listen(PORT, () => console.log(`Listening on ${PORT}`));

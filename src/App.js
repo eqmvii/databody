@@ -89,7 +89,7 @@ class App extends Component {
 
   render() {
     return (
-      
+
       <div className="App">
         <BasicExample />
         <header className="App-header">
@@ -98,6 +98,9 @@ class App extends Component {
         <p className="App-intro">
           Coming soon: <code>computer code</code> and maybe eventually an "app" of some kind.
         </p>
+        <div className="jumbotron">
+          <h1 className="text-center">Hello</h1>
+        </div>
         <p>
           {this.state.message}
         </p>
