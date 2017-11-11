@@ -1,4 +1,10 @@
 
+# DataBody
+
+Eric Mancini's NKO 2017 hackathon entry
+
+Current Status: Broken / busted / doesn't exist / check back later
+
 # Node Knockout React / Node starter
 
 This is a starter repo that pairs a Node service with a React frontend using

@@ -13,7 +13,7 @@ app
 // Application-specific routes
 // Add your own routes here!
 app.get('/example-path', async (req, res, next) => {
-  res.json({ message: "Hello World!" });
+  res.json({ message: "Hello NKO World! This text came from the server. Woah!" });
 });
 
 // Serve static assets built by create-react-app
