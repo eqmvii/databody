@@ -26,36 +26,48 @@ const About = () => (
 )
 
 class Login extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
     this.handleLogin = this.handleLogin.bind(this);
-    this.state = {redirect: false};
+    if (sessionStorage.getItem('authed') === "true") {
+      this.state = { loggedin: true };
+    }
+    else {
+      this.state = { loggedin: false }
+    }
   }
 
   handleLogin() {
     // alert("Login!");
     // TODO: Come back and make this less horrible
-    sessionStorage.setItem('authed', 'true');
-    console.log(sessionStorage.getItem('authed'));
-    this.setState({redirect: true});
+    sessionStorage.authed = "true";
+    console.log(`Login clicked. Authed: ${sessionStorage.authed}`);
+    this.setState({ loggedin: true });
 
   }
 
-  render () {
-    console.log(this.props);
-    if (this.state.redirect) {
-      return (<Redirect to="/protected"/>);
+  render() {
+    // console.log(this.props);
+    console.log(`Rendering login route. Authed: ${sessionStorage.authed}. Redirect state: ${this.state.loggedin}`);
 
+    if (this.state.loggedin) {
+      console.log("You're logged in...");
+      return (        <Redirect to={{
+        pathname: '/protected'
+      }} />);
     }
     else {
-    return (
-    <div>
-      <h2>Hello {this.props.test}! Welcome to login. Login!</h2>
-      <br />
-      <button className="btn btn-primary" onClick={this.handleLogin}>Login</button>
-    </div>
-  )}
-}
+      console.log("You are not logged in, so here's the login route");
+      return (
+        <div>
+          <br />
+          <h2>Hello! Welcome to LOGIN ROUTE. Login!</h2>
+          <br />
+          <button className="btn btn-primary" onClick={this.handleLogin}>Login</button>
+        </div>
+      )
+    }
+  }
 }
 
 const Weighin = () => (
@@ -64,12 +76,15 @@ const Weighin = () => (
   </div>
 )
 
-const Protected = () => (
-  <div>
-    <h2>!!! SECRET PROTECTED PAGE NICE !!!</h2>
-  </div>
-)
-
+class Protected extends Component {
+  render() {
+    console.log(`Rendering the protected element... authed is ${sessionStorage.authed}`);
+    return (<div>
+      <h2>!!! SECRET PROTECTED PAGE NICE !!!</h2>
+    </div>
+    )
+  }
+}
 const Mystats = () => (
   <div>
     <h2>Hey here is about your stats, ok!</h2>
@@ -134,14 +149,15 @@ const BasicExample = () => (
 class App extends Component {
   constructor(props) {
     super(props);
+    
+    // clear session storage
+    sessionStorage.clear();
+    
     this.state = {
       authed: false,
     };
 
-
   }
-
-
 
   // Load some data from the server to demonstrate communication between
   // the client and Node
@@ -156,6 +172,7 @@ class App extends Component {
   }
 
   render() {
+    console.log("# # # Rendering the app!");
     return (
 
       <div className="App">
@@ -168,13 +185,14 @@ class App extends Component {
             <Route path="/login" component={Login} />
             <Route path="/logout" render={() => {
               // TODO: Make this less hacky
-                  sessionStorage.setItem('authed', 'false');
-            return (<Redirect to="/login"/>);                
-              
+              console.log("logout clicked, logging out...");
+              sessionStorage.setItem('authed', 'false');
+              return (<Redirect to="/login" />);
+
             }} />
             <Route path="/weighin" component={Weighin} />
             <Route path="/mystats" component={Mystats} />
-            <PrivateRoute path="/protected" component={Protected} authed={sessionStorage.getItem("authed")} />
+            <PrivateRoute path="/protected" component={Protected} />
             <p> {this.state.message} </p>
           </div>
         </Router>
@@ -188,7 +206,7 @@ fakeAuth.isAuthenticated = true;
 
 const PrivateRoute = ({ component: Component, ...rest }) => (
   <Route {...rest} render={props => (
-    rest.authed === "true" ? (
+    sessionStorage.authed === "true" ? (
       <Component {...props} />
     ) : (
         <Redirect to={{
