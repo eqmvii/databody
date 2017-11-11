@@ -5,6 +5,25 @@ Eric Mancini's NKO 2017 hackathon entry
 
 Current Status: Broken / busted / doesn't exist / check back later
 
+# Development info / record keeping
+
+`$ npm start`
+
+boots up the dev server (port 3001) AND the front end hot reloading goodness (port 3000)
+
+`$ npm run build`
+
+builds for deployment
+
+Provisioned a PostgreSQL DB (postgresql-rigid-69643 as DATABASE_URL)
+
+`heroku addons:create heroku-postgresql:hobby-dev`
+
+# Database / Table information
+
+(rome wasn't built in a day / to come later)
+
+
 # Node Knockout React / Node starter
 
 This is a starter repo that pairs a Node service with a React frontend using

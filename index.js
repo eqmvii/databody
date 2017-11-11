@@ -2,6 +2,31 @@ const express = require('express');
 const helmet = require('helmet');
 const expressEnforcesSSL = require('express-enforces-ssl');
 const PORT = process.env.PORT || 3001;
+const { Client } = require('pg');
+
+// configure database connection based on environment
+if (PORT === 3001) {
+  var client = new Client({
+    user: 'postgres',
+    host: 'localhost',
+    database: 'postgres',
+    password: 'password',
+    port: 5432,});
+}
+else {
+  var client = new Client({ connectionString: process.env.DATABASE_RUL, SSL: true });
+}
+
+client.connect();
+
+// test the connection
+client.query('SELECT * FROM test_table;', (err, res) => {
+  if (err) throw err;
+  console.log("Succesfully read the following data from the PostgreSQL test_table: ");
+  for (let row of res.rows) {
+    console.log(JSON.stringify(row));
+  }
+});
 
 const app = express();
 
@@ -20,7 +45,7 @@ app.get('/example-path', async (req, res, next) => {
 app.use(express.static('build'));
 
 // If no explicit matches were found, serve index.html
-app.get('*', function(req, res){
+app.get('*', function (req, res) {
   res.sendFile(__dirname + '/build/index.html');
 });
 
