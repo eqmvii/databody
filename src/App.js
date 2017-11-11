@@ -100,6 +100,7 @@ class App extends Component {
         </p>
         <div className="jumbotron">
           <h1 className="text-center">Hello</h1>
+          <button className="btn btn-primary">Click</button>
         </div>
         <p>
           {this.state.message}
