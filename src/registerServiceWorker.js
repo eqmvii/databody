@@ -100,6 +100,7 @@ function checkValidServiceWorker(swUrl) {
 }
 
 export function unregister() {
+  console.log("Service register removal is active; i.e. app is in debug mode");
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.ready.then(registration => {
       registration.unregister();
