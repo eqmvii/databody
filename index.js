@@ -14,7 +14,7 @@ if (PORT === 3001) {
     port: 5432,});
 }
 else {
-  var client = new Client({ connectionString: process.env.DATABASE_RUL, SSL: true });
+  var client = new Client({ connectionString: process.env.DATABASE_URL, SSL: true });
 }
 
 client.connect();
