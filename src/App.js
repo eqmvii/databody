@@ -115,6 +115,14 @@ class RegisterForm extends Component {
   constructor(props) {
     super(props);
     this.handleRegister = this.handleRegister.bind(this);
+    this.handleFormChange = this.handleFormChange.bind(this);
+
+
+    this.state = {
+      username: '',
+      password: 'choose',
+      error: '',
+    }
 
     /*
     if (sessionStorage.getItem('authed') === "true") {
@@ -126,8 +134,66 @@ class RegisterForm extends Component {
     */
   }
 
-  handleRegister() {
-    alert("Tryin' to register I see!");
+  handleFormChange(event) {
+    const target = event.target;
+    const name = event.target.name;
+    // use computed object key. Thanks react docs!
+    this.setState({ [name]: event.target.value });
+
+  }
+
+  handleRegister(event) {
+    event.preventDefault();
+    console.log(" ### REGISTER SUBMIT ###");
+    console.log("State: ");
+    console.log(this.state);
+
+    // handle various registration error scenarios
+    if (this.state.username === "") {
+      this.setState({ error: 'You must select pick a username to register.' });
+      return;
+    }
+    if (this.state.password === "choose") {
+      this.setState({ error: 'You must select one of the weak passwords.' });
+      return;
+    }
+
+    // no validation errors, so attempt to register:
+
+    var registration = {};
+    registration.username = this.state.username;
+    registration.password = this.state.password;
+    registration.email = "fake@email.com";
+    registration.activity = 0;
+    registration.height = 100;
+    registration.age = 100;
+
+    fetch('/register', { method: "POST", body: JSON.stringify(registration) })
+      .then(res => {
+        if (res.ok) {
+          return res.json()
+        } else { throw Error(res.statusTest) }
+      })
+      .then(res => {
+        console.log("Server responds: ");
+        console.log(res);
+        if (res.duplicate) {
+          this.setState({
+            error: 'Username already registered!',
+            username: '',
+            password: 'choose',
+          });
+          return;
+        } else {
+          // process logging in the newly registered user
+          sessionStorage.authed = "true";
+          sessionStorage.username = res.username;
+          this.setState({username: '', password: 'choose', error: ''});
+        }
+      })
+      .catch(err => console.log(err));
+
+    //alert("Tryin' to register I see!");
     /*
         sessionStorage.authed = "true";
         console.log(`Login clicked. Authed: ${sessionStorage.authed}`);
@@ -144,27 +210,38 @@ class RegisterForm extends Component {
     }
     else {
       console.log("You are not logged in, so here's the REGISTER route");
+      var error_message = false;
+      if (this.state.error) {
+        error_message = (<div className="alert alert-danger" role="alert"><strong>ERROR: </strong>{this.state.error}</div>);
+      }
+
       return (
-        <form>
+        <form onSubmit={this.handleRegister}>
           <h3 className="text-center">Register</h3>
+          {error_message}
           <div className="form-group">
-            <label htmlFor="exampleInputEmail1">Email address</label>
-            <input type="email" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" />
-            <small id="emailHelp" className="form-text text-muted">We'll never share your email with anyone else.</small>
+            <label htmlFor="usernameregister">Username</label>
+            <input
+              type="text"
+              className="form-control"
+              id="usernameregister"
+              placeholder="Enter username"
+              name="username"
+              value={this.state.username}
+              onChange={this.handleFormChange} />
           </div>
           <div className="form-group">
-            <label htmlFor="exampleInputPassword1">Password</label>
-            <input type="password" className="form-control" id="exampleInputPassword1" placeholder="Password" />
+            <label htmlFor="exampleFormControlSelect1">Password</label>
+            <select className="form-control" id="exampleFormControlSelect1" name="password" onChange={this.handleFormChange} value={this.password}>
+              <option value="choose">Choose...</option>
+              <option value="123">123</option>
+              <option value="abc">abc</option>
+              <option value="pwd">pwd</option>
+            </select>
           </div>
-          <div className="form-check">
-            <label className="form-check-label">
-              <input type="checkbox" className="form-check-input" />
-              Check me out
-              </label>
+          <div className="text-center">
+            <button type="submit" className="btn btn-primary" onClick={this.handleRegister}>Submit</button>
           </div>
-          <button type="submit" className="btn btn-primary">Submit</button>
-          <br />
-          <button className="btn btn-danger" onClick={this.handleRegister}>Magic Register</button>
         </form>
       )
     }
@@ -240,9 +317,9 @@ class Login extends Component {
 const Weighin = () => (
   <div className="row">
     <div className="col-6 offset-3">
-    <h2>Enter Weight</h2>
-    <input className="text-center"/>
-    <button className="btn btn-primary disabled">Submit</button>
+      <h2>Enter Weight</h2>
+      <input className="text-center" />
+      <button className="btn btn-primary disabled">Submit</button>
     </div>
   </div>
 )
@@ -260,12 +337,13 @@ class Protected extends Component {
     )
   }
 }
+
 class Stats extends Component {
   render() {
     return (
       <div className="row">
         <div className="col-6 offset-3">
-          <h2 className="text-center">Your Stats</h2>
+          <h2 className="text-center">Hello {sessionStorage.username}! Your Stats</h2>
           <ul>
             <li>userid: </li>
             <li>username: </li>

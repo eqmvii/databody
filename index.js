@@ -13,7 +13,8 @@ if (PORT === 3001) {
     host: 'localhost',
     database: 'postgres',
     password: 'password',
-    port: 5432,});
+    port: 5432,
+  });
 }
 else {
   var client = new Client({ connectionString: process.env.DATABASE_URL, SSL: true });
@@ -48,6 +49,53 @@ app.get('/example-path', async (req, res, next) => {
 
 app.post('/register', function (req, res) {
   // Check to see if username is already taken
+  console.log("### REGISTER ###");
+  var register_response_object = {
+    duplicate: false,
+    username: ''
+  }
+
+  // node.js boiilterplate for handling a body stream from PUT
+  let body = [];
+  req.on('data', (chunk) => {
+    body.push(chunk);
+  }).on('end', () => {
+    body = Buffer.concat(body).toString();
+    var registration = JSON.parse(body);
+    console.log("Registration details :");
+    console.log(registration);
+    register_response_object.username = registration.username;    
+    // TODO: Use ES6 syntax here
+
+    // Check to see if username is already registered
+    var name_check_query = "SELECT * FROM databody_users WHERE username = $1";
+    var name_check_values = [registration.username];
+    // console.log(name_check_query + " . . . " + name_check_values[0]);
+
+    client.query(name_check_query, name_check_values)
+      .then(resolve => {
+        if (resolve.rows.length > 0) {
+          console.log("User already registered.");
+          register_response_object.duplicate = true;
+          res.json(register_response_object.duplicate);
+        }
+        else {
+          console.log("It's a unique username, and I can register it!");
+
+          var query_string_insert = "INSERT INTO databody_users (username, password, email, activity, height, age) VALUES ($1, $2, $3, $4, $5, $6)";
+          var insert_values = [registration.username, registration.password, registration.email, registration.activity, registration.height, registration.age];
+          console.log(query_string_insert);
+          console.log(insert_values);
+          client.query(query_string_insert, insert_values);
+          // respond that there was no duplicate and the user was registered
+          res.json(register_response_object);
+        }
+      })
+
+    // If not, register it
+
+  });
+
 
   // If not, register the user
 
@@ -57,8 +105,8 @@ app.post('/register', function (req, res) {
 app.get('/getallusers', function (req, res) {
   // console.log("Get messages endpoint hit");
   client.query('SELECT * FROM databody_users ORDER BY username', (err, response) => {
-      if (err) throw err;
-      res.json(response.rows);
+    if (err) throw err;
+    res.json(response.rows);
   });
 });
 
@@ -66,30 +114,36 @@ app.get('/getallusers', function (req, res) {
 app.get('/getallweights', function (req, res) {
   // console.log("Get messages endpoint hit");
   client.query('SELECT * FROM databody_weights ORDER BY stamp', (err, response) => {
-      if (err) throw err;
-      res.json(response.rows);
+    if (err) throw err;
+    res.json(response.rows);
   });
 });
 
 app.post('/login', function (req, res) {
   // check to see if user name and password match
+  console.log("### LOGIN ###");
 
   //if so, yay!
 });
 
 app.post('/addweight', function (req, res) {
   // Add a single piece of new weight data to the weights table
+  console.log("### ADDWEIGHT ###");
+
 });
 
 app.get('/userdataraw', function (req, res) {
   // return the user's raw weight data
-  res.json({ message: "userdataraw route not implemented yet" });  
+  console.log("### USERDATARAW ###");
+
+  res.json({ message: "userdataraw route not implemented yet" });
 });
 
 app.get('/userdatasummary', function (req, res) {
   // process and return information about the user
-  res.json({ message: "userdatasummary route not implemented yet" });  
-  
+  console.log("### USERDATASUMMARY ###");
+  res.json({ message: "userdatasummary route not implemented yet" });
+
 });
 
 // Serve static assets built by create-react-app
