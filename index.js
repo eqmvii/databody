@@ -2,6 +2,7 @@ const express = require('express');
 const helmet = require('helmet');
 const expressEnforcesSSL = require('express-enforces-ssl');
 const { Client } = require('pg');
+// TODO: Add express-session to protect routes
 
 const PORT = process.env.PORT || 3001;
 
@@ -45,8 +46,55 @@ app.get('/example-path', async (req, res, next) => {
   res.json({ message: "Hello NKO World! This text came from the server. Woah!" });
 });
 
+app.post('/register', function (req, res) {
+  // Check to see if username is already taken
+
+  // If not, register the user
+
+});
+
+// routes for testing purposes only
+app.get('/getallusers', function (req, res) {
+  // console.log("Get messages endpoint hit");
+  client.query('SELECT * FROM databody_users ORDER BY username', (err, response) => {
+      if (err) throw err;
+      res.json(response.rows);
+  });
+});
+
+// routes for testing purposes only
+app.get('/getallweights', function (req, res) {
+  // console.log("Get messages endpoint hit");
+  client.query('SELECT * FROM databody_weights ORDER BY stamp', (err, response) => {
+      if (err) throw err;
+      res.json(response.rows);
+  });
+});
+
+app.post('/login', function (req, res) {
+  // check to see if user name and password match
+
+  //if so, yay!
+});
+
+app.post('/addweight', function (req, res) {
+  // Add a single piece of new weight data to the weights table
+});
+
+app.get('/userdataraw', function (req, res) {
+  // return the user's raw weight data
+  res.json({ message: "userdataraw route not implemented yet" });  
+});
+
+app.get('/userdatasummary', function (req, res) {
+  // process and return information about the user
+  res.json({ message: "userdatasummary route not implemented yet" });  
+  
+});
+
 // Serve static assets built by create-react-app
 app.use(express.static('build'));
+
 
 // If no explicit matches were found, serve index.html
 app.get('*', function (req, res) {

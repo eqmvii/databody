@@ -25,7 +25,46 @@ Provisioned a PostgreSQL DB (postgresql-rigid-69643 as DATABASE_URL)
 
 # Database / Table information
 
-(rome wasn't built in a day / to come later)
+```
+heroku pg:psql
+
+-OR-
+
+sudo -u postgres psql
+
+CREATE TABLE databody_weights (
+  id SERIAL NOT NULL PRIMARY KEY,
+  userid integer NOT NULL,
+  weight integer NOT NULL,
+  stamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE databody_users (
+  userid SERIAL NOT NULL PRIMARY KEY,
+  username varchar(20) NOT NULL,
+  password varchar(3) NOT NULL,
+  email varchar(254) NOT NULL,
+  height integer NOT NULL,
+  age integer NOT NULL,
+  activity integer NOT NULL,
+  stamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+\q
+```
+
+Testing:
+
+```
+INSERT INTO databody_users (username, password, email, height, age, activity) VALUES ('Eric', '123', 'eric@email.com', '5', '30', '1');
+
+INSERT INTO databody_weights (userid, weight) VALUES ('1', '140');
+INSERT INTO databody_weights (userid, weight) VALUES ('1', '141');
+
+SELECT * FROM databody_users;
+SELECT * FROM databody_weights;
+
+```
 
 
 # Node Knockout React / Node starter

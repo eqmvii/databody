@@ -267,7 +267,7 @@ class Stats extends Component {
         <div className="col-6 offset-3">
           <h2 className="text-center">Your Stats</h2>
           <ul>
-            <li>user_id: </li>
+            <li>userid: </li>
             <li>username: </li>
             <li>email: </li>
             <li>height: </li>
