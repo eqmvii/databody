@@ -31,3 +31,13 @@ I'll report back later on if that remains true or not.
 #### T+16.5 hours
 
 Roughed in the front-end structure and am ready to set up the basics of the database and actual authentication routes
+
+## Success!
+
+#### T+20 hours
+
+Got my horribly hacked together user registration and login working. It's simlpe, but in means the database exists, works locally, works in production, and can talk to the frontend over various routes.
+
+Lots of shortcuts taken and details punted for later, but the framework exists, which means the actual features can be developed now. Or I can take a nap.
+
+Time will tell.
