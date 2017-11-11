@@ -41,3 +41,17 @@ Got my horribly hacked together user registration and login working. It's simlpe
 Lots of shortcuts taken and details punted for later, but the framework exists, which means the actual features can be developed now. Or I can take a nap.
 
 Time will tell.
+
+## Sessions: 1 Eric: 0
+
+#### T+23 hours
+
+Had some nasty issues sorting out cookies and sessions. A tangle of related issues, including secure cookies (or not), fetch sending cookies (or not, by default), and other express security settings. As is always the case, from the beginning the only truly broken thing was my mental model of the app and my technical assumptions.
+
+Amusingly, I got the clue I needed to get things working when I realized sessions/cookies were working on Heroku (with https) but not locally. That lightbulb refined my google searches, and now I feel comfortable plowing ahead securing some of my API routes with sessions.
+
+Learning is such a step function. For 2 hours you chase leads, chase your own tail, chase shadows, and feel like things make less and less sense. Then bam! All of the sudden it works and you're moving full speed ahead, and you actually feel like you've Learned Something(TM).
+
+Anyway, enough learning. Now I'm going to get dinner!
+
+- - - - - - - - 

@@ -204,7 +204,7 @@ class RegisterForm extends Component {
     registration.height = 100;
     registration.age = 100;
 
-    fetch('/register', { method: "POST", body: JSON.stringify(registration) })
+    fetch('/register', { credentials: 'include', method: "POST", body: JSON.stringify(registration) })
       .then(res => {
         if (res.ok) {
           return res.json()

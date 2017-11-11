@@ -8,6 +8,10 @@ const session = require('express-session');
 
 const PORT = process.env.PORT || 3001;
 
+
+
+
+
 // configure database connection based on environment
 if (PORT === 3001) {
   var client = new Client({
@@ -38,12 +42,32 @@ const app = express();
 // trying to get cookies to persist
 app.set('trust proxy', true);
 
-app.use(session({
-  secret: 'this-is-NOT-a-secret-token-and-I-Know-It',
-  cookie: { maxAge: 60 * 1000, secure: true },
-  resave: true,
-  saveUninitialized: true
-}));
+// no security when running locally
+if (PORT === 3001) {
+  // TODO: Think about the providence of secure cookies
+  app.use(session({
+    secret: 'this-is-NOT-a-secret-token-and-I-Know-It',
+    cookie: { maxAge: 60 * 20 * 1000, secure: false },
+    resave: true,
+    saveUninitialized: true
+  }));
+}
+
+else {
+  app
+    .use(https)
+    .use(helmet());
+  // TODO: Think about the providence of secure cookies
+  app.use(session({
+    secret: 'this-is-NOT-a-secret-token-and-I-Know-It',
+    cookie: { maxAge: 60 * 20 * 1000, secure: true },
+    resave: true,
+    saveUninitialized: true
+  }));
+}
+
+// lots of security when running on heroku
+
 
 app.use(function (req, res, next) {
   if (!req.session.mycounter) {
@@ -63,19 +87,16 @@ app.use(function (req, res, next) {
 // app.enable('trust proxy');
 // app.use(expressEnforcesSSL);
 
-// Initialize an express app with some security defaults
-app
-  .use(https)
-  .use(helmet());
+
 
 // Access the session as req.session
-app.get('/clapon', function(req, res, next) {
+app.get('/clapon', function (req, res, next) {
   var sessData = req.session;
   sessData.someAttribute = "foo";
   res.send('Returning with some text');
 });
 
-app.get('/clapoff', function(req, res, next) {
+app.get('/clapoff', function (req, res, next) {
   var someAttribute = req.session.someAttribute;
   res.send(`This will print the attribute I set earlier: ${someAttribute}`);
 });
@@ -162,11 +183,11 @@ app.post('/login', function (req, res) {
   else { req.session.mycounter += 1 }
   // console.log("Beginning of route session: ");
   console.log(req.sessionID);
-  console.log(req.headers);
+  // console.log(req.headers);
   req.session.save();
 
 
- // console.log("### LOGIN ###");
+  // console.log("### LOGIN ###");
   var login_response_object = {
     error: false,
     username: '',
@@ -200,8 +221,8 @@ app.post('/login', function (req, res) {
           // console.log("### Logged in !!!! Now it's: ###");
           // console.log(req.sessionID);
           req.session.save();
-          
-          
+
+
           res.json(login_response_object);
         }
         else {
@@ -226,7 +247,7 @@ app.post('/addweight', function (req, res) {
 app.get('/userdataraw', function (req, res) {
   // return the user's raw weight data
   console.log("### USERDATARAW ###");
-  
+
 
   res.json({ message: "userdataraw route not implemented yet" });
 });
