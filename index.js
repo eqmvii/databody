@@ -19,7 +19,7 @@ else {
 
 client.connect();
 
-// test the connection
+// test the connection; TODO: Remove from production code
 client.query('SELECT * FROM test_table;', (err, res) => {
   if (err) throw err;
   console.log("Succesfully read the following data from the PostgreSQL test_table: ");
