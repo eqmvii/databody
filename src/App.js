@@ -111,6 +111,7 @@ const Topics = ({ match }) => (
   </div>
 )
 
+// old routing example
 const BasicExample = () => (
   <Router>
     <div>
