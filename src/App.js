@@ -3,8 +3,15 @@ import './App.css';
 import {
   BrowserRouter as Router,
   Route,
+  Redirect,
   Link
 } from 'react-router-dom'
+
+// Stopping point / dear diary: Well, here's a puzzle. Do I need redux? I might need redux. I've learned that I can't pass state through routes.
+// That leaves few choices for handling things from here.
+// So... redux? 
+// First some sleep. Then redux!
+// NO INSTEAD THE WORLD'S HACKIEST LOGIN. Literally nothing has ever been hackier, this is the top 100% most hackiest. 
 
 const Home = () => (
   <div>
@@ -17,6 +24,58 @@ const About = () => (
     <h2>About</h2>
   </div>
 )
+
+class Login extends Component {
+  constructor(props){
+    super(props);
+    this.handleLogin = this.handleLogin.bind(this);
+    this.state = {redirect: false};
+  }
+
+  handleLogin() {
+    // alert("Login!");
+    // TODO: Come back and make this less horrible
+    sessionStorage.setItem('authed', 'true');
+    console.log(sessionStorage.getItem('authed'));
+    this.setState({redirect: true});
+
+  }
+
+  render () {
+    console.log(this.props);
+    if (this.state.redirect) {
+      return (<Redirect to="/protected"/>);
+
+    }
+    else {
+    return (
+    <div>
+      <h2>Hello {this.props.test}! Welcome to login. Login!</h2>
+      <br />
+      <button className="btn btn-primary" onClick={this.handleLogin}>Login</button>
+    </div>
+  )}
+}
+}
+
+const Weighin = () => (
+  <div>
+    <h2>Here is to weigh in!</h2>
+  </div>
+)
+
+const Protected = () => (
+  <div>
+    <h2>!!! SECRET PROTECTED PAGE NICE !!!</h2>
+  </div>
+)
+
+const Mystats = () => (
+  <div>
+    <h2>Hey here is about your stats, ok!</h2>
+  </div>
+)
+
 
 const Topic = ({ match }) => (
   <div>
@@ -72,8 +131,16 @@ const BasicExample = () => (
 
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      authed: false,
+    };
 
-  state = { message: "Loading..." };
+
+  }
+
+
 
   // Load some data from the server to demonstrate communication between
   // the client and Node
@@ -83,7 +150,7 @@ class App extends Component {
       const json = await data.json();
       this.setState(json);
     } catch (e) {
-      console.log("Failed to fetch message", e);
+      console.log("Failed to fetch message: ", e);
     }
   }
 
@@ -91,23 +158,72 @@ class App extends Component {
     return (
 
       <div className="App">
-        <BasicExample />
-        <header className="App-header">
-          <h1 className="App-title">Welcome to NKO!</h1>
-        </header>
-        <p className="App-intro">
-          Coming soon: <code>computer code</code> and maybe eventually an "app" of some kind.
-        </p>
-        <div className="jumbotron">
-          <h1 className="text-center">Hello</h1>
-          <button className="btn btn-primary">Click</button>
-        </div>
-        <p>
-          {this.state.message}
-        </p>
+        <Router>
+          <div>
+            <Nav />
+            <header className="App-header">
+              <h1 className="App-title">Welcome to NKO!</h1>
+            </header>
+            <Route path="/login" component={Login} />
+            <Route path="/logout" render={() => {
+              // TODO: Make this less hacky
+                  sessionStorage.setItem('authed', 'false');
+            return (<Redirect to="/login"/>);                
+              
+            }} />
+            <Route path="/weighin" component={Weighin} />
+            <Route path="/mystats" component={Mystats} />
+            <PrivateRoute path="/protected" component={Protected} authed={sessionStorage.getItem("authed")} />
+            <p> {this.state.message} </p>
+          </div>
+        </Router>
       </div>
     );
   }
 }
+
+var fakeAuth = {};
+fakeAuth.isAuthenticated = true;
+
+const PrivateRoute = ({ component: Component, ...rest }) => (
+  <Route {...rest} render={props => (
+    rest.authed === "true" ? (
+      <Component {...props} />
+    ) : (
+        <Redirect to={{
+          pathname: '/login',
+          state: { from: props.location }
+        }} />
+      )
+  )} />
+)
+
+
+const Nav = () => (
+  <nav className="navbar navbar-expand-lg navbar-light bg-light">
+    <Link to="/" className="navbar-brand">DataBody</Link>
+    <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span className="navbar-toggler-icon"></span>
+    </button>
+    <div className="collapse navbar-collapse" id="navbarNav">
+      <ul className="navbar-nav">
+        <li className="nav-item active">
+          <Link to="/weighin" className="nav-link">Weigh-In</Link>
+        </li>
+        <li className="nav-item">
+          <Link to="/mystats" className="nav-link">My Stats</Link>
+        </li>
+        <li className="nav-item">
+          <Link to="/login" className="nav-link">Login</Link>
+        </li>
+        <li className="nav-item">
+          <Link to="/protected" className="nav-link">Protected</Link>
+        </li>
+        <li className="nav-item">
+          <Link to="/logout" className="nav-link">Logout</Link>
+        </li>
+      </ul>
+    </div>
+  </nav>)
 
 export default App;
