@@ -50,7 +50,7 @@ class NewLoginForm extends Component {
       this.setState({error: 'must enter a password'});
       return;
     }
-    fetch('/login', { method: "POST", body: JSON.stringify({username: this.state.username, password: this.state.password}) })
+    fetch('/login', { credentials: 'include', method: "POST", body: JSON.stringify({username: this.state.username, password: this.state.password}) })
     .then(res => {
       if (res.ok) {
         return res.json()

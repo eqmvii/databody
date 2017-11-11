@@ -2,6 +2,8 @@ const express = require('express');
 const helmet = require('helmet');
 const expressEnforcesSSL = require('express-enforces-ssl');
 const { Client } = require('pg');
+const session = require('express-session');
+
 // TODO: Add express-session to protect routes
 
 const PORT = process.env.PORT || 3001;
@@ -33,6 +35,30 @@ client.query('SELECT * FROM test_table;', (err, res) => {
 
 const app = express();
 
+// trying to get cookies to persist
+app.set('trust proxy', true);
+
+app.use(session({
+  secret: 'this-is-NOT-a-secret-token-and-I-Know-It',
+  cookie: { maxAge: 60 * 1000, secure: true },
+  resave: true,
+  saveUninitialized: true
+}));
+
+app.use(function (req, res, next) {
+  if (!req.session.mycounter) {
+    req.session.mycounter = 1;
+  }
+  else { req.session.mycounter += 1 }
+  // console.log("pass-through middleware:");
+  // console.log(req.sessionID);
+
+  // console.log(`Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
+  next();
+});
+
+
+
 // configuration for Heroku / enforce ssl
 // app.enable('trust proxy');
 // app.use(expressEnforcesSSL);
@@ -41,6 +67,18 @@ const app = express();
 app
   .use(https)
   .use(helmet());
+
+// Access the session as req.session
+app.get('/clapon', function(req, res, next) {
+  var sessData = req.session;
+  sessData.someAttribute = "foo";
+  res.send('Returning with some text');
+});
+
+app.get('/clapoff', function(req, res, next) {
+  var someAttribute = req.session.someAttribute;
+  res.send(`This will print the attribute I set earlier: ${someAttribute}`);
+});
 
 // Application-specific routes
 app.get('/example-path', async (req, res, next) => {
@@ -64,7 +102,7 @@ app.post('/register', function (req, res) {
     var registration = JSON.parse(body);
     console.log("Registration details :");
     console.log(registration);
-    register_response_object.username = registration.username;    
+    register_response_object.username = registration.username;
     // TODO: Use ES6 syntax here
 
     // Check to see if username is already registered
@@ -81,23 +119,25 @@ app.post('/register', function (req, res) {
         }
         else {
           console.log("It's a unique username, and I can register it!");
-
+          // TODO: store to session
           var query_string_insert = "INSERT INTO databody_users (username, password, email, activity, height, age) VALUES ($1, $2, $3, $4, $5, $6)";
           var insert_values = [registration.username, registration.password, registration.email, registration.activity, registration.height, registration.age];
           console.log(query_string_insert);
           console.log(insert_values);
           client.query(query_string_insert, insert_values);
+
           // respond that there was no duplicate and the user was registered
           res.json(register_response_object);
         }
       })
   });
 
-
 }); // end register route
 
 // routes for testing purposes only
 app.get('/getallusers', function (req, res) {
+  // console.log(`### GET ALL USERS: Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
+
   // console.log("Get messages endpoint hit");
   client.query('SELECT * FROM databody_users ORDER BY username', (err, response) => {
     if (err) throw err;
@@ -115,7 +155,18 @@ app.get('/getallweights', function (req, res) {
 });
 
 app.post('/login', function (req, res) {
-  console.log("### LOGIN ###");
+  console.log(`### Login: Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
+  if (!req.session.mycounter) {
+    req.session.mycounter = 1;
+  }
+  else { req.session.mycounter += 1 }
+  // console.log("Beginning of route session: ");
+  console.log(req.sessionID);
+  console.log(req.headers);
+  req.session.save();
+
+
+ // console.log("### LOGIN ###");
   var login_response_object = {
     error: false,
     username: '',
@@ -129,24 +180,32 @@ app.post('/login', function (req, res) {
   }).on('end', () => {
     body = Buffer.concat(body).toString();
     body = JSON.parse(body);
-    console.log("Login request:");
-    console.log(body.username + " / " + body.password);
-    login_response_object.username = body.username;    
+    // console.log("Login request:");
+    // console.log(body.username + " / " + body.password);
+    login_response_object.username = body.username;
     // TODO: Use ES6 syntax here
 
     // Check to see if username is already registered
     var login_query = "SELECT * FROM databody_users WHERE username = $1 AND password = $2";
     var login_values = [body.username, body.password];
-    console.log(login_query + " . . . " + login_values[0] + ", " + login_values[1]);
+    // console.log(login_query + " . . . " + login_values[0] + ", " + login_values[1]);
 
     client.query(login_query, login_values)
       .then(resolve => {
         if (resolve.rows.length > 0) {
-          console.log("Username/password match!");
+          // console.log("Username/password match!");
+          req.session.loggedin = true;
+          req.session.username = body.username;
+          req.session.mycounter += 1;
+          // console.log("### Logged in !!!! Now it's: ###");
+          // console.log(req.sessionID);
+          req.session.save();
+          
+          
           res.json(login_response_object);
         }
         else {
-          console.log("Username/password mismatch!");
+          // console.log("Username/password mismatch!");
           login_response_object.error_message = "Error: Your login didn't work";
           login_response_object.error = true;
           res.json(login_response_object);
@@ -161,11 +220,13 @@ app.post('/addweight', function (req, res) {
   // Add a single piece of new weight data to the weights table
   console.log("### ADDWEIGHT ###");
 
+
 });
 
 app.get('/userdataraw', function (req, res) {
   // return the user's raw weight data
   console.log("### USERDATARAW ###");
+  
 
   res.json({ message: "userdataraw route not implemented yet" });
 });
@@ -180,11 +241,14 @@ app.get('/userdatasummary', function (req, res) {
 // Serve static assets built by create-react-app
 app.use(express.static('build'));
 
-
+/*
 // If no explicit matches were found, serve index.html
 app.get('*', function (req, res) {
+  console.log(`### No match: Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
+  
   res.sendFile(__dirname + '/build/index.html');
 });
+*/
 
 app
   .use(notfound)
@@ -212,3 +276,6 @@ function errors(err, req, res, next) {
 }
 
 app.listen(PORT, () => console.log(`Listening on ${PORT}`));
+
+
+

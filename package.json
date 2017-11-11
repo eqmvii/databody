@@ -6,6 +6,7 @@
     "bootstrap": "^4.0.0-beta.2",
     "express": "^4.15.4",
     "express-enforces-ssl": "^1.1.0",
+    "express-session": "^1.15.6",
     "helmet": "^3.8.1",
     "pg": "^7.4.0",
     "react": "^16.0.0",
