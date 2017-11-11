@@ -1,9 +1,13 @@
 
 # DataBody
 
-Eric Mancini's NKO 2017 hackathon entry
+Eric Mancini's NKO 2017 hackathon project
 
-Current Status: Broken / busted / doesn't exist / check back later
+This is my first real hackathon! What could possibly go wrong!
+
+Current Status: The app's front-end skeletal architecture is roughed in
+
+Production heroku version: https://databody.herokuapp.com
 
 # Development info / record keeping
 

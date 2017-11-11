@@ -25,3 +25,9 @@ Woke up and nothing works as well as it did when I went to sleep. Login works, s
 Found the bug, which was really just a flaw in the way I was reasoning about react router. I had a route pull information from sessionStorage, and didn't realize that route was stateless and so never updated even when sessionStorage changed. That was causing very strange behavior, but it's sorted, and now I think my extremely hacky login and routing can work for hacking everything else together.
 
 I'll report back later on if that remains true or not.
+
+## Front-end Architecture
+
+#### T+16.5 hours
+
+Roughed in the front-end structure and am ready to set up the basics of the database and actual authentication routes

@@ -1,23 +1,12 @@
-.App {
-  text-align: center;
+.navbar {
+  background-color: rgb(245, 125, 125) !important;
 }
 
-.App-header {
-  background-color: rgb(48, 45, 45);
-  height: 150px;
-  padding: 60px;
-  color: rgb(172, 87, 87);
+.jumbotron {
+  color: rgb(245, 210, 210);
+  background-color: rgb(58, 11, 11);
 }
 
-.App-title {
-  font-size: 3em;
-}
-
-.App-intro {
-  font-size: large;
-}
-
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+p {
+  color: rgb(43, 4, 4);  
 }
