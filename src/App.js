@@ -1,3 +1,11 @@
+// App.js - for DataBody, Eric Mancini's Node Knockout Hackathon Entry
+
+// CURRENT STATUS:
+/*
+  Under active development!
+*/
+
+
 import React, { Component } from 'react';
 import './App.css';
 import {
@@ -7,31 +15,65 @@ import {
   Link
 } from 'react-router-dom'
 
-// Stopping point / dear diary: Well, here's a puzzle. Do I need redux? I might need redux. I've learned that I can't pass state through routes.
-// That leaves few choices for handling things from here.
-// So... redux? 
-// First some sleep. Then redux!
-// NO INSTEAD THE WORLD'S HACKIEST LOGIN. Literally nothing has ever been hackier, this is the top 100% most hackiest. 
-
-
 class NewLoginForm extends Component {
   constructor(props) {
     super(props);
-    this.handleLogin = this.handleLogin.bind(this);
-    if (sessionStorage.getItem('authed') === "true") {
+
+    this.handleFormChange = this.handleFormChange.bind(this);
+    this.handleLogin = this.handleLogin.bind(this);   
+    
+
+    if (sessionStorage.authed === "true") {
       this.state = { loggedin: true };
     }
     else {
-      this.state = { loggedin: false }
+      this.state = { loggedin: false, username: '', password: '', error: '' };
     }
   }
 
-  handleLogin() {
-    // alert("Login!");
-    // TODO: Come back and make this less horrible
-    sessionStorage.authed = "true";
-    console.log(`Login clicked. Authed: ${sessionStorage.authed}`);
-    this.setState({ loggedin: true });
+  handleFormChange(event){
+    const target = event.target;
+    const name = event.target.name;
+    // use computed object key. Thanks react docs!
+    this.setState({ [name]: event.target.value });
+  }
+
+  handleLogin(event) {
+    event.preventDefault();
+    console.log(this.state);
+    // validate input before talkign to the server
+    if (this.state.username === ''){
+      this.setState({error: 'must enter a username'});
+      return;
+    }
+    else if (this.state.password === ''){
+      this.setState({error: 'must enter a password'});
+      return;
+    }
+    fetch('/login', { method: "POST", body: JSON.stringify({username: this.state.username, password: this.state.password}) })
+    .then(res => {
+      if (res.ok) {
+        return res.json()
+      } else { throw Error(res.statusTest) }
+    })
+    .then(res => {
+      console.log("Server responds: ");
+      console.log(res);
+      if (res.error) {
+        this.setState({
+          error: res.error_message,
+          username: '',
+          password: '',
+        });
+        return;
+      } else {
+        // Process login
+        sessionStorage.authed = "true";
+        sessionStorage.username = res.username;
+        this.setState({username: '', password: '', error: '', loggedin: true});
+      }
+    })
+    .catch(err => console.log(err));
   }
 
   render() {
@@ -45,57 +87,51 @@ class NewLoginForm extends Component {
       }} />);
     }
     else {
+      var error_message = false;
+      if (this.state.error) {
+        error_message = (<div className="alert alert-danger" role="alert"><strong>ERROR: </strong>{this.state.error}</div>);
+      }
       console.log("You are not logged in, so here's the login route");
       return (
-        <form>
+        <form onSubmit={this.handleLogin}>
+
           <h3 className="text-center">Login</h3>
+
+          {error_message}
+
           <div className="form-group">
-            <label htmlFor="exampleInputEmail1">Email address</label>
-            <input type="email" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" />
-            <small id="emailHelp" className="form-text text-muted">We'll never share your email with anyone else.</small>
+            <label htmlFor="usernamelogin">Username</label>
+            <input 
+              type="text"
+              className="form-control"
+              id="usernamelogin"
+              placeholder="Username"
+              name="username"
+              value={this.state.username}
+              onChange={this.handleFormChange} />
           </div>
+
           <div className="form-group">
-            <label htmlFor="exampleInputPassword1">Password</label>
-            <input type="password" className="form-control" id="exampleInputPassword1" placeholder="Password" />
+            <label htmlFor="passwordlogin">Password</label>
+            <input 
+              type="password" 
+              className="form-control" 
+              id="passwordlogin" 
+              name="password"
+              placeholder="Password"
+              value={this.state.password}
+              onChange={this.handleFormChange}
+                />
           </div>
-          <div className="form-check">
-            <label className="form-check-label">
-              <input type="checkbox" className="form-check-input" />
-              Check me out
-              </label>
+          <div className="text-center">
+            <button type="submit" className="btn btn-primary" onClick={this.handleLogin}>Login</button>
           </div>
-          <button type="submit" className="btn btn-primary">Submit</button>
-          <br />
-          <button className="btn btn-danger" onClick={this.handleLogin}>Magic Login</button>
+
         </form>
       )
     }
   }
 }
-
-const LoginForm = () => (
-  <form>
-    <h3 className="text-center">Login</h3>
-    <div className="form-group">
-      <label for="exampleInputEmail1">Email address</label>
-      <input type="email" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" />
-      <small id="emailHelp" className="form-text text-muted">We'll never share your email with anyone else.</small>
-    </div>
-    <div className="form-group">
-      <label for="exampleInputPassword1">Password</label>
-      <input type="password" className="form-control" id="exampleInputPassword1" placeholder="Password" />
-    </div>
-    <div className="form-check">
-      <label className="form-check-label">
-        <input type="checkbox" className="form-check-input" />
-        Check me out
-</label>
-    </div>
-    <button type="submit" className="btn btn-primary">Submit</button>
-  </form>
-
-
-)
 
 const Home = () => (
   <div className="row">
@@ -267,53 +303,6 @@ const Login = () => (
   </div>
 )
 
-/*
-class Login extends Component {
-  constructor(props) {
-    super(props);
-    this.handleLogin = this.handleLogin.bind(this);
-    if (sessionStorage.getItem('authed') === "true") {
-      this.state = { loggedin: true };
-    }
-    else {
-      this.state = { loggedin: false }
-    }
-  }
-
-  handleLogin() {
-    // alert("Login!");
-    // TODO: Come back and make this less horrible
-    sessionStorage.authed = "true";
-    console.log(`Login clicked. Authed: ${sessionStorage.authed}`);
-    this.setState({ loggedin: true });
-
-  }
-
-  render() {
-    // console.log(this.props);
-    console.log(`Rendering login route. Authed: ${sessionStorage.authed}. Redirect state: ${this.state.loggedin}`);
-
-    if (this.state.loggedin) {
-      console.log("You're logged in...");
-      return (<Redirect to={{
-        pathname: '/protected'
-      }} />);
-    }
-    else {
-      console.log("You are not logged in, so here's the login route");
-      return (
-        <div>
-          <br />
-          <h2>Hello! Welcome to LOGIN ROUTE. Login!</h2>
-          <br />
-          <button className="btn btn-primary" onClick={this.handleLogin}>Login</button>
-        </div>
-      )
-    }
-  }
-}
-*/
-
 const Weighin = () => (
   <div className="row">
     <div className="col-6 offset-3">
@@ -417,6 +406,7 @@ class App extends Component {
     super(props);
 
     // clear session storage
+    // TODO BUG ALERT ALARMA turn this off for production
     sessionStorage.clear();
 
     this.state = {
@@ -457,7 +447,8 @@ class App extends Component {
               <Route path="/logout" render={() => {
                 // TODO: Make this less hacky
                 console.log("logout clicked, logging out...");
-                sessionStorage.setItem('authed', 'false');
+                sessionStorage.removeItem('authed');
+                sessionStorage.removeItem('username');
                 return (<Redirect to="/login" />);
               }} />
               <PrivateRoute path="/weighin" component={Weighin} />

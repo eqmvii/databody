@@ -77,7 +77,7 @@ app.post('/register', function (req, res) {
         if (resolve.rows.length > 0) {
           console.log("User already registered.");
           register_response_object.duplicate = true;
-          res.json(register_response_object.duplicate);
+          res.json(register_response_object);
         }
         else {
           console.log("It's a unique username, and I can register it!");
@@ -91,15 +91,10 @@ app.post('/register', function (req, res) {
           res.json(register_response_object);
         }
       })
-
-    // If not, register it
-
   });
 
 
-  // If not, register the user
-
-});
+}); // end register route
 
 // routes for testing purposes only
 app.get('/getallusers', function (req, res) {
@@ -120,10 +115,46 @@ app.get('/getallweights', function (req, res) {
 });
 
 app.post('/login', function (req, res) {
-  // check to see if user name and password match
   console.log("### LOGIN ###");
+  var login_response_object = {
+    error: false,
+    username: '',
+    error_message: 'Login succeeded!',
+  }
 
-  //if so, yay!
+  // node.js boiilterplate for handling a body stream from PUT
+  let body = [];
+  req.on('data', (chunk) => {
+    body.push(chunk);
+  }).on('end', () => {
+    body = Buffer.concat(body).toString();
+    body = JSON.parse(body);
+    console.log("Login request:");
+    console.log(body.username + " / " + body.password);
+    login_response_object.username = body.username;    
+    // TODO: Use ES6 syntax here
+
+    // Check to see if username is already registered
+    var login_query = "SELECT * FROM databody_users WHERE username = $1 AND password = $2";
+    var login_values = [body.username, body.password];
+    console.log(login_query + " . . . " + login_values[0] + ", " + login_values[1]);
+
+    client.query(login_query, login_values)
+      .then(resolve => {
+        if (resolve.rows.length > 0) {
+          console.log("Username/password match!");
+          res.json(login_response_object);
+        }
+        else {
+          console.log("Username/password mismatch!");
+          login_response_object.error_message = "Error: Your login didn't work";
+          login_response_object.error = true;
+          res.json(login_response_object);
+        }
+      })
+  });
+
+
 });
 
 app.post('/addweight', function (req, res) {
