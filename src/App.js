@@ -150,7 +150,7 @@ class Home extends Component {
         <div className="row">
           <div className="col-sm-8 border" id="mysplash">
             <h1 className="text-danger">Welcome!</h1>
-            <p>How many Calories did you consume yesterday?</p>
+            <p>How many calories do you eat?</p>
             <p>Data Body can tell you, without you needing to track what you eat! Of course there is one catch - you're going to need to weigh yourself several times per day, for several days. Once you've fed the app enough weight data, it will use Math to calculate how much you've been eating.</p>
             <div className="text-center">
               <p>
@@ -161,7 +161,7 @@ class Home extends Component {
                   </button></Link></p>
             </div>
             <p>It will take several days to gatehr enough data. But if you can keep it up, you'll get data-driven feedback to help you gain, maintain, or lose weight!</p>
-            <p>The secret is understanding how erratic a person's weight is throughout the day. Stepping on the scale now and then can give you a badly distorted idea of your progress, since a person's weight fluctuates several pounds over a single day. Short term weight loss or gain becomes noise - but with repeated weighins, trends emerge. </p>
+            <p>Just stepping on the scale now and then can give you a badly distorted idea of your progress, since a person's weight fluctuates several pounds over a single day. Short term weight loss or gain becomes noise - but with lots of data, trends emerge.</p>
             <p>Take a look at the below example of the method in action!</p>
             <h4 className="text-center">Weight Over Time</h4>
             <p>{myimage}</p>
@@ -399,7 +399,7 @@ const About = () => (
       <br />
       <h3>How it Works</h3><br />
       <p>
-        After registering for an account, a user can only do one thing: enter their weight. When the weight is entered, it's added to a database with a time stamp. A thrilling ~gamified~ progress bar fills as you add data. Once The Algorithm has enough quality data, the Stats page will display average daily caloric information. In my experience it takes about 10 days worth of good data (around 30 points) for the equations to even out, but for fast testing purposes the app will show information as soon as it receives 10 data points.
+        After registering for an account, a user can only do one thing: enter their weight. When the weight is entered, it's added to a database with a time stamp. A thrilling ~gamified~ progress bar fills as you add data, and otherwise your numbers are out of sight, out of mind until there's sufficient data. Once The Algorithm has enough quality data, the Stats page will display average daily caloric information. In my experience it takes about 10 days worth of good data (around 30 points) for the equations to even out, but for fast testing purposes the app will show information as soon as it receives 10 data points.
       </p>
 
       <br />
@@ -698,17 +698,14 @@ class Stats extends Component {
     var progressASCIIexes = "x ".repeat(progXs);
     var progressASCIIunderscores = "_ ".repeat(spaces);
     var color;
-    if (progXs <= 3) {
+    if (progXs <= 5) {
       color = "red";
     }
-    else if (progXs <= 6) {
-      color = "orange"
-    }
     else if (progXs <= 9) {
-      color = "rgb(209, 186, 12)";
+      color = "orange";
     }
     else {
-      color = "green"
+      color = "green";
     }
 
     var progressbar = (
@@ -726,7 +723,8 @@ class Stats extends Component {
       </div>);
 
     if (this.state.progress >= 100) {
-      var dashboard = (<div className="row">
+      var dashboard = (<div>
+        <div className="row">
         <div className="col">
           <hr />
           <div className="card-deck">
@@ -796,6 +794,13 @@ class Stats extends Component {
 
         </div>
       </div>
+      <div className="row">
+        <div className="col-sm">
+          <br />
+          <div class="alert alert-danger"><strong>Disclaimer:</strong> Your data will be CRAZY if you just enter 10 weights in one short session, as it will be calculating daily averages based on just seconds worth of data. To get reasonable results/information, you will need 7-14 days worth of regular weigh-ins.</div>
+          </div>
+        </div>
+        </div>
       )
     }
 
