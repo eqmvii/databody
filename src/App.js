@@ -77,10 +77,10 @@ class LoginForm extends Component {
 
   render() {
     // console.log(this.props);
-    console.log(`Rendering login route. Authed: ${sessionStorage.authed}. Redirect state: ${this.state.loggedin}`);
+    // console.log(`Rendering login route. Authed: ${sessionStorage.authed}. Redirect state: ${this.state.loggedin}`);
 
     if (this.state.loggedin) {
-      console.log("You're logged in...");
+      // console.log("You're logged in...");
       return (<Redirect to={{ pathname: '/stats' }} />);
     }
     else {
@@ -88,7 +88,7 @@ class LoginForm extends Component {
       if (this.state.error) {
         error_message = (<div className="alert alert-danger" role="alert"><strong>ERROR: </strong>{this.state.error}</div>);
       }
-      console.log("You are not logged in, so here's the login route");
+      // console.log("You are not logged in, so here's the login route");
       return (
         <form onSubmit={this.handleLogin}>
 
@@ -121,7 +121,7 @@ class LoginForm extends Component {
             />
           </div>
           <div className="text-center">
-            <button type="submit" className="btn btn-primary" onClick={this.handleLogin}><i class="fa fa-sign-in" aria-hidden="true"></i> Login</button>
+            <button type="submit" className="btn btn-primary" onClick={this.handleLogin}><i className="fa fa-sign-in" aria-hidden="true"></i> Login</button>
           </div>
 
         </form>
@@ -269,7 +269,7 @@ class RegisterForm extends Component {
             </select>
           </div>
           <div className="text-center">
-            <button type="submit" className="btn btn-success" onClick={this.handleRegister}><i class="fa fa-handshake-o" aria-hidden="true"></i> Register</button>
+            <button type="submit" className="btn btn-success" onClick={this.handleRegister}><i className="fa fa-handshake-o" aria-hidden="true"></i> Register</button>
           </div>
         </form>)
     }
@@ -400,7 +400,7 @@ class Weigh extends Component {
               <p><button
                 className="btn btn-primary"
                 name="Submit"
-                onClick={this.handleSubmit}><i class="fa fa-plus" aria-hidden="true"></i> Add Data</button></p>
+                onClick={this.handleSubmit}><i className="fa fa-plus" aria-hidden="true"></i> Add Data</button></p>
               <br />
               <hr />
               <h4>Demo mode: Load sample data</h4>
@@ -419,39 +419,48 @@ class Weigh extends Component {
   }
 }
 
-class Protected extends Component {
-  render() {
-    console.log(`Rendering the protected element... authed is ${sessionStorage.authed}`);
-    return (
-      <div className="row">
-        <div className="col-6 offset-3">
-          <br />
-          <h2>PROTECTED PAGE</h2>
-        </div>
-      </div>
-    )
-  }
-}
-
 class Stats extends Component {
   constructor(props) {
     super(props);
 
     this.handleDelete = this.handleDelete.bind(this);
+    this.fetchWeightData = this.fetchWeightData.bind(this);
 
     this.state = {
       progress: -1,
       loading: true,
       data: {},
+      status_message: "Loading...",
+      alert_class: 'alert alert-info'
     }
   }
 
   handleDelete(event) {
     event.preventDefault;
-    alert("Woah deleting your data woah!");
+    //alert("Woah deleting your data!");
+    fetch('/deletemydata', { credentials: 'include', method: "GET" })
+      .then(res => {
+        if (res.ok) {
+          return res.json()
+        } else { throw Error(res.statusTest) }
+      })
+      .then(res => {
+        console.log("Server responds with data summary: ");
+        console.log(res);
+        if (res.error) {
+          console.log(res.error_message);
+          return;
+        }
+        this.fetchWeightData();
+      })
+      .catch(err => console.log(err));
   }
 
   componentDidMount() {
+    this.fetchWeightData();
+  }
+
+  fetchWeightData() {
     // fetch data summary
     fetch('/userdatasummary', { credentials: 'include', method: "GET" })
       .then(res => {
@@ -469,7 +478,9 @@ class Stats extends Component {
         this.setState({
           loading: false,
           progress: res.progress,
-          data: res
+          data: res,
+          status_message: res.status_message,
+          alert_class: res.alert_class,
         })
       })
       .catch(err => console.log(err));
@@ -482,39 +493,48 @@ class Stats extends Component {
     else {
       var status_message = false;
     }
-    // build the ASCII progress bar. Gamification!
-    if (this.state.progress < 100) {
-      var dashboard = false;
-      var progXs = parseInt(this.state.progress / 10);
-      var spaces = 10 - progXs;
-      var progressASCIIexes = "x ".repeat(progXs);
-      var progressASCIIunderscores = "_ ".repeat(spaces);
-      var color;
-      if (progXs <= 3) {
-        color = "red";
-      }
-      else if (progXs <= 6) {
-        color = "orange"
-      }
-      else if (progXs <= 9) {
-        color = "yellow"
-      }
+    var dashboard = false;
 
-      var progressbar = (
-        <div className="col-6 offset-3">
+
+    // build the ASCII progress bar. Gamification!
+    var dashboard = false;
+    var progXs = parseInt(this.state.progress / 10);
+    var spaces = 10 - progXs;
+    var progressASCIIexes = "x ".repeat(progXs);
+    var progressASCIIunderscores = "_ ".repeat(spaces);
+    var color;
+    if (progXs <= 3) {
+      color = "red";
+    }
+    else if (progXs <= 6) {
+      color = "orange"
+    }
+    else if (progXs <= 9) {
+      color = "yellow"
+    }
+    else {
+      color = "green"
+    }
+
+    var progressbar = (
+      <div className="row">
+        <div className="col-8 offset-2">
+        <hr />
           <div className="text-center" id="progressbar" >
             <h4>Progress Bar ({this.state.progress}%)</h4>
             <p style={{ "fontFamily": "monospace", "fontSize": "32px", "fontWeight": "bold" }}>
               | <span style={{ "color": color }}>{progressASCIIexes}</span>{progressASCIIunderscores}|
           </p>
             <br />
-            <p>Keep going! Hit 100% to unlock your caloric analysis!</p>
           </div>
-        </div>);
-    }
-    else {
-      var progressbar = false;
-      var dashboard = (<div className="card-deck">
+        </div>
+      </div>);
+
+    if (this.state.progress >= 100) {
+      var dashboard = (<div className="row">
+        <div className="col">
+          <hr />
+        <div className="card-deck">
 
         <div className="col-4">
           <div className="card border border-danger" >
@@ -563,6 +583,9 @@ class Stats extends Component {
         </div>
 
       </div>
+
+      </div>
+      </div>
       )
     }
 
@@ -571,11 +594,12 @@ class Stats extends Component {
         <div className="row">
 
           <div className="col-6 offset-3">
-            <h2 className="text-center">Hello {sessionStorage.username}</h2>
+            <h2 className="text-center">Stats for {sessionStorage.username}</h2>
             <div className="text-center">
               {status_message}
             </div>
             <div className="text-center">
+              <div className={this.state.alert_class}><strong>Data Status:</strong> {this.state.status_message} </div>
               <p> <strong>Height:</strong> {this.state.data.height} inches | <strong>Age:</strong> {this.state.data.age} years | <strong>Activity Level:</strong> ({this.state.data.activity}/5) </p>
               <br />
             </div>
@@ -583,8 +607,10 @@ class Stats extends Component {
 
         </div>
 
-        {progressbar}
+
         {dashboard}
+        <br />
+        {progressbar}
 
         <div className="row text-center">
 
@@ -592,8 +618,8 @@ class Stats extends Component {
           <div className="col">
             <hr />
             <h4>Delete all my data</h4>
-            <p>For testing, press this button to delete all of your weight data</p>
-            <button className="btn btn-danger" onClick={this.handleDelete}><i class="fa fa-trash-o" aria-hidden="true"></i> Delete My Data</button>
+            <p>For testing, press this button to delete all of your weight data and clear fake test data</p>
+            <button className="btn btn-danger" onClick={this.handleDelete}><i className="fa fa-trash-o" aria-hidden="true"></i> Delete My Data</button>
           </div>
         </div>
 
@@ -724,7 +750,6 @@ class App extends Component {
               }} />
               <PrivateRoute path="/weigh" component={Weigh} />
               <PrivateRoute path="/stats" component={Stats} />
-              <PrivateRoute path="/protected" component={Protected} />
               <br />
               <hr />
             </main>
@@ -753,13 +778,13 @@ class Nav extends Component {
     if (this.props.authed) {
       var logoutLink = (<li className="nav-item">
         <Link to="/logout" className="nav-link">
-          <i class="fa fa-sign-out" aria-hidden="true"></i> Logout
+          <i className="fa fa-sign-out" aria-hidden="true"></i> Logout
       </Link></li>);
       var weighinLink = (<li className="nav-item">
-        <Link to="/weigh" className="nav-link"><i class="fa fa-balance-scale" aria-hidden="true"></i> Weigh-in
+        <Link to="/weigh" className="nav-link"><i className="fa fa-balance-scale" aria-hidden="true"></i> Weigh-in
       </Link></li>);
       var statsLink = (<li className="nav-item">
-        <Link to="/stats" className="nav-link"><i class="fa fa-user" aria-hidden="true"></i> Stats
+        <Link to="/stats" className="nav-link"><i className="fa fa-user" aria-hidden="true"></i> Stats
         </Link></li>);
 
       var loginLink = false;
@@ -771,10 +796,10 @@ class Nav extends Component {
       var logoutLink = false;
 
       var registerLink = (<li className="nav-item">
-        <Link to="/register" className="nav-link"><i class="fa fa-handshake-o" aria-hidden="true"></i> Register</Link>
+        <Link to="/register" className="nav-link"><i className="fa fa-handshake-o" aria-hidden="true"></i> Register</Link>
       </li>);
       var loginLink = (<li className="nav-item">
-        <Link to="/login" className="nav-link"><i class="fa fa-sign-in" aria-hidden="true"></i> Login</Link>
+        <Link to="/login" className="nav-link"><i className="fa fa-sign-in" aria-hidden="true"></i> Login</Link>
       </li>);
     }
     return (

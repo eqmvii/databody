@@ -190,19 +190,36 @@ app.get('/logout', function (req, res) {
   res.json("Logout complete");
 });
 
-// routes for testing purposes only
+// Delete all of the users data
+// TODO: idk make this not a GET route come on Eric
 app.get('/deletemydata', function (req, res) {
-  console.log(`### Delete My Data: Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
+  console.log(`### DELETE My Data: Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
+  if (!req.session.loggedin) {
+    console.log("Error: Unauthorized GET userdatasummary route request");
+    res.json({
+      error: true,
+      error_message: "ERROR: Session error; unauthorized. Probably Eric's fault"
+    });
+    return;
+  }
+  var username = req.session.username;
 
-  // Check to see if username is already registered
+  req.session.fakedata = false;  
   var name_check_query = "SELECT * FROM databody_users WHERE username = $1";
   var name_check_values = [username];
-  // console.log(name_check_query + " . . . " + name_check_values[0]);
 
   client.query(name_check_query, name_check_values)
-
-
-  res.json({ error: false, error_message: '' });
+    .then(resolveUser => {
+      // store user table data for response
+      var userid = resolveUser.rows[0].userid;
+      // Prepare to get weight data
+      var delete_weights_query = "DELETE FROM databody_weights WHERE userid =$1";
+      var delete_values = [userid];
+      client.query(delete_weights_query, delete_values)
+        .then(resolve => {
+          res.json({ error: false, error_message: '' });
+        })
+      }); 
 
 });
 
@@ -359,7 +376,8 @@ app.get('/userdatasummary', function (req, res) {
       weight_delta: -1.2,
       error: false,
       error_message: '',
-      status_message: 'Fake Testing Data. Add a weight to turn off the fake data.'
+      status_message: 'Fake test data being used.',
+      alert_class: 'alert alert-danger',
     }
     res.json(data_summary);
     return;
@@ -380,7 +398,8 @@ app.get('/userdatasummary', function (req, res) {
     weight_delta: -1,
     error: false,
     error_message: '',
-    status_message: ''
+    status_message: 'Insufficient weight data. Keep adding more!',
+    alert_class: 'alert alert-warning'
   }
 
   var name_check_query = "SELECT * FROM databody_users WHERE username = $1";
@@ -409,8 +428,10 @@ app.get('/userdatasummary', function (req, res) {
 
           // TODO: Improve this formula
           data_summary.progress = parseInt((data_summary.weights.length / 10) * 100, 10);
-          if (data_summary.progress > 100) {
+          if (data_summary.progress >= 100) {
             data_summary.progress = 100;
+            data_summary.status_message = "Sufficient weight data entered!";
+            data_summary.alert_class = 'alert alert-success';
           }
 
           // calculate Harris Benedict Equation - BMR * activity factor
