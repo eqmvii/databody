@@ -14,6 +14,10 @@ import {
   Link
 } from 'react-router-dom'
 
+// import images because of course it's javascript all the way down
+import weightchart from './weightchart.png'; 
+import databodylogosmall from './databodylogosmall.jpg';
+
 class LoginForm extends Component {
   constructor(props) {
     super(props);
@@ -138,7 +142,7 @@ class Home extends Component {
   }
 
   render() {
-    var myimage = (<img id="frontpagechart" src="/static/img/weightchart.png" className="img-fluid img-thumbnail" alt="weight data chart" />);
+    var myimage = (<img id="frontpagechart" src={weightchart} className="img-fluid img-thumbnail" alt="weight data chart" />);
     // disable image
     //myimage = false;
     return (
@@ -933,7 +937,7 @@ class Nav extends Component {
     }
     return (
       <nav className="navbar navbar-expand-lg navbar-light bg-light justify-content-between">
-        <Link to="/" className="navbar-brand"><img src="/static/img/databodylogosmall.jpg" alt="brand image" /></Link>
+        <Link to="/" className="navbar-brand"><img src={databodylogosmall} alt="brand image" /></Link>
         <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
           <span className="navbar-toggler-icon"></span>
         </button>
