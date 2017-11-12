@@ -54,4 +54,12 @@ Learning is such a step function. For 2 hours you chase leads, chase your own ta
 
 Anyway, enough learning. Now I'm going to get dinner!
 
+## Back on track!
+
+#### T+27 hours
+
+Back in the groove after dinner and a bit of rest. Added the add-weight route without any drama, and the session code worked as expected, the first time I tried. Learning! Knock on wood!
+
+ALSO MORE CAFFEINE IS HELPING.
+
 - - - - - - - - 

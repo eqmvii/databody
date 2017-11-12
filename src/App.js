@@ -20,8 +20,8 @@ class NewLoginForm extends Component {
     super(props);
 
     this.handleFormChange = this.handleFormChange.bind(this);
-    this.handleLogin = this.handleLogin.bind(this);   
-    
+    this.handleLogin = this.handleLogin.bind(this);
+
 
     if (sessionStorage.authed === "true") {
       this.state = { loggedin: true };
@@ -31,7 +31,7 @@ class NewLoginForm extends Component {
     }
   }
 
-  handleFormChange(event){
+  handleFormChange(event) {
     const target = event.target;
     const name = event.target.name;
     // use computed object key. Thanks react docs!
@@ -42,38 +42,38 @@ class NewLoginForm extends Component {
     event.preventDefault();
     console.log(this.state);
     // validate input before talkign to the server
-    if (this.state.username === ''){
-      this.setState({error: 'must enter a username'});
+    if (this.state.username === '') {
+      this.setState({ error: 'must enter a username' });
       return;
     }
-    else if (this.state.password === ''){
-      this.setState({error: 'must enter a password'});
+    else if (this.state.password === '') {
+      this.setState({ error: 'must enter a password' });
       return;
     }
-    fetch('/login', { credentials: 'include', method: "POST", body: JSON.stringify({username: this.state.username, password: this.state.password}) })
-    .then(res => {
-      if (res.ok) {
-        return res.json()
-      } else { throw Error(res.statusTest) }
-    })
-    .then(res => {
-      console.log("Server responds: ");
-      console.log(res);
-      if (res.error) {
-        this.setState({
-          error: res.error_message,
-          username: '',
-          password: '',
-        });
-        return;
-      } else {
-        // Process login
-        sessionStorage.authed = "true";
-        sessionStorage.username = res.username;
-        this.setState({username: '', password: '', error: '', loggedin: true});
-      }
-    })
-    .catch(err => console.log(err));
+    fetch('/login', { credentials: 'include', method: "POST", body: JSON.stringify({ username: this.state.username, password: this.state.password }) })
+      .then(res => {
+        if (res.ok) {
+          return res.json()
+        } else { throw Error(res.statusTest) }
+      })
+      .then(res => {
+        console.log("Server responds: ");
+        console.log(res);
+        if (res.error) {
+          this.setState({
+            error: res.error_message,
+            username: '',
+            password: '',
+          });
+          return;
+        } else {
+          // Process login
+          sessionStorage.authed = "true";
+          sessionStorage.username = res.username;
+          this.setState({ username: '', password: '', error: '', loggedin: true });
+        }
+      })
+      .catch(err => console.log(err));
   }
 
   render() {
@@ -101,7 +101,7 @@ class NewLoginForm extends Component {
 
           <div className="form-group">
             <label htmlFor="usernamelogin">Username</label>
-            <input 
+            <input
               type="text"
               className="form-control"
               id="usernamelogin"
@@ -113,15 +113,15 @@ class NewLoginForm extends Component {
 
           <div className="form-group">
             <label htmlFor="passwordlogin">Password</label>
-            <input 
-              type="password" 
-              className="form-control" 
-              id="passwordlogin" 
+            <input
+              type="password"
+              className="form-control"
+              id="passwordlogin"
               name="password"
               placeholder="Password"
               value={this.state.password}
               onChange={this.handleFormChange}
-                />
+            />
           </div>
           <div className="text-center">
             <button type="submit" className="btn btn-primary" onClick={this.handleLogin}>Login</button>
@@ -160,14 +160,6 @@ class RegisterForm extends Component {
       error: '',
     }
 
-    /*
-    if (sessionStorage.getItem('authed') === "true") {
-      this.state = { loggedin: true };
-    }
-    else {
-      this.state = { loggedin: false }
-    }
-    */
   }
 
   handleFormChange(event) {
@@ -224,7 +216,7 @@ class RegisterForm extends Component {
           // process logging in the newly registered user
           sessionStorage.authed = "true";
           sessionStorage.username = res.username;
-          this.setState({username: '', password: 'choose', error: ''});
+          this.setState({ username: '', password: 'choose', error: '' });
         }
       })
       .catch(err => console.log(err));
@@ -303,15 +295,98 @@ const Login = () => (
   </div>
 )
 
-const Weighin = () => (
-  <div className="row">
-    <div className="col-6 offset-3">
-      <h2>Enter Weight</h2>
-      <input className="text-center" />
-      <button className="btn btn-primary disabled">Submit</button>
-    </div>
-  </div>
-)
+// TODO: Handle form number selection issues and parsing
+class Weigh extends Component {
+  constructor(props) {
+    super(props);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleFormChange = this.handleFormChange.bind(this);
+
+    this.state = {
+      weight: 0,
+      message: '',
+      username: sessionStorage.username,
+    }
+
+  }
+
+  handleFormChange(event) {
+    const target = event.target;
+    const name = event.target.name;
+    this.setState({ [name]: event.target.value });
+  }
+
+  handleSubmit(event) {
+    event.preventDefault();
+    console.log(" ### WEIGHT SUBMIT ###");
+    console.log("State: ");
+    console.log(this.state);
+
+    // handle various registration error scenarios
+    if (this.state.weight === "") {
+      this.setState({ error: 'You must select enter your weight' });
+      return;
+    }
+
+    var weight_data = {
+      username: this.state.username,
+      weight: this.state.weight,
+    }
+
+    fetch('/addweight', { credentials: 'include', method: "POST", body: JSON.stringify(weight_data) })
+      .then(res => {
+        if (res.ok) {
+          return res.json()
+        } else { throw Error(res.statusTest) }
+      })
+      .then(res => {
+        console.log("Server responds: ");
+        console.log(res);
+        this.setState({ weight: 0, message: res });
+      })
+      .catch(err => console.log(err));
+  }
+
+  render() {
+    if (this.state.message) {
+      var response_message = (<div className="alert alert-success"><strong>Success: </strong>{this.state.message}</div>);
+    }
+    else {
+      var response_message = false;
+    }
+    return (
+      <div className="row">
+        <div className="col-6 offset-3 text-center">
+          {response_message}
+          <form onSubmit={this.handleSubmit}>
+
+            <h3>Add Weight Data</h3>
+            <br />
+
+            <div className="form-group">
+              <label htmlFor="weightinput">Current Weight</label>
+              <input
+                className="form-control col-4 offset-4"
+                id="weightinput"
+                name="weight"
+                type="text"
+                placeholder="Enter weight"
+                value={this.state.weight}
+                onChange={this.handleFormChange} />
+            </div>
+
+            <div className="text-center">
+              <button
+                className="btn btn-primary"
+                onClick={this.handleSubmit}>Submit</button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    )
+  }
+}
 
 class Protected extends Component {
   render() {
@@ -451,7 +526,7 @@ class App extends Component {
                 sessionStorage.removeItem('username');
                 return (<Redirect to="/login" />);
               }} />
-              <PrivateRoute path="/weighin" component={Weighin} />
+              <PrivateRoute path="/weigh" component={Weigh} />
               <PrivateRoute path="/stats" component={Stats} />
               <PrivateRoute path="/protected" component={Protected} />
               <br />
@@ -489,7 +564,7 @@ const Nav = () => (
     <div className="collapse navbar-collapse" id="navbarNav">
       <ul className="navbar-nav">
         <li className="nav-item">
-          <Link to="/weighin" className="nav-link">Weigh</Link>
+          <Link to="/weigh" className="nav-link">Weigh</Link>
         </li>
         <li className="nav-item">
           <Link to="/stats" className="nav-link">Stats</Link>

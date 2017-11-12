@@ -8,10 +8,6 @@ const session = require('express-session');
 
 const PORT = process.env.PORT || 3001;
 
-
-
-
-
 // configure database connection based on environment
 if (PORT === 3001) {
   var client = new Client({
@@ -42,9 +38,10 @@ const app = express();
 // trying to get cookies to persist
 app.set('trust proxy', true);
 
+// TODO: Think about the providence of secure cookies
+// TODO: pick a session store
 // no security when running locally
 if (PORT === 3001) {
-  // TODO: Think about the providence of secure cookies
   app.use(session({
     secret: 'this-is-NOT-a-secret-token-and-I-Know-It',
     cookie: { maxAge: 60 * 20 * 1000, secure: false },
@@ -57,7 +54,7 @@ else {
   app
     .use(https)
     .use(helmet());
-  // TODO: Think about the providence of secure cookies
+
   app.use(session({
     secret: 'this-is-NOT-a-secret-token-and-I-Know-It',
     cookie: { maxAge: 60 * 20 * 1000, secure: true },
@@ -67,8 +64,6 @@ else {
 }
 
 // lots of security when running on heroku
-
-
 app.use(function (req, res, next) {
   if (!req.session.mycounter) {
     req.session.mycounter = 1;
@@ -80,13 +75,6 @@ app.use(function (req, res, next) {
   // console.log(`Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
   next();
 });
-
-
-
-// configuration for Heroku / enforce ssl
-// app.enable('trust proxy');
-// app.use(expressEnforcesSSL);
-
 
 
 // Access the session as req.session
@@ -157,8 +145,8 @@ app.post('/register', function (req, res) {
 
 // routes for testing purposes only
 app.get('/getallusers', function (req, res) {
-  // console.log(`### GET ALL USERS: Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
-
+  console.log(`### GET ALL USERS: Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
+  
   // console.log("Get messages endpoint hit");
   client.query('SELECT * FROM databody_users ORDER BY username', (err, response) => {
     if (err) throw err;
@@ -168,24 +156,18 @@ app.get('/getallusers', function (req, res) {
 
 // routes for testing purposes only
 app.get('/getallweights', function (req, res) {
-  // console.log("Get messages endpoint hit");
+  console.log(`### GET ALL WEIGHTS: Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
   client.query('SELECT * FROM databody_weights ORDER BY stamp', (err, response) => {
     if (err) throw err;
     res.json(response.rows);
   });
 });
 
+
+
 app.post('/login', function (req, res) {
   console.log(`### Login: Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
-  if (!req.session.mycounter) {
-    req.session.mycounter = 1;
-  }
-  else { req.session.mycounter += 1 }
-  // console.log("Beginning of route session: ");
   console.log(req.sessionID);
-  // console.log(req.headers);
-  req.session.save();
-
 
   // console.log("### LOGIN ###");
   var login_response_object = {
@@ -217,12 +199,6 @@ app.post('/login', function (req, res) {
           // console.log("Username/password match!");
           req.session.loggedin = true;
           req.session.username = body.username;
-          req.session.mycounter += 1;
-          // console.log("### Logged in !!!! Now it's: ###");
-          // console.log(req.sessionID);
-          req.session.save();
-
-
           res.json(login_response_object);
         }
         else {
@@ -234,15 +210,46 @@ app.post('/login', function (req, res) {
       })
   });
 
-
 });
 
 app.post('/addweight', function (req, res) {
-  // Add a single piece of new weight data to the weights table
-  console.log("### ADDWEIGHT ###");
+  console.log(`### ADD WEIGHT: Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
+  if(!req.session.loggedin){
+    console.log("Error: Unauthorized add weight POST route request");
+    res.json("ERROR: Session error; unauthorized. Probably Eric's fault");
+    return;
+  }
+  // node.js boiilterplate for handling a body stream from PUT
+  let body = [];
+  req.on('data', (chunk) => {
+    body.push(chunk);
+  }).on('end', () => {
+    body = Buffer.concat(body).toString();
+    body = JSON.parse(body);
+    console.log("Weight datapoint:");
+    console.log(body);
+    var username = body.username;
+    var weight = parseInt(body.weight, 10);
 
+    // Check to see if username is already registered
+    var name_check_query = "SELECT * FROM databody_users WHERE username = $1";
+    var name_check_values = [username];
+    // console.log(name_check_query + " . . . " + name_check_values[0]);
 
-});
+    client.query(name_check_query, name_check_values)
+      .then(resolve => {
+        var userid = resolve.rows[0].userid;
+        var query_string_insert = "INSERT INTO databody_weights (userid, weight) VALUES ($1, $2)";
+        var insert_values = [userid, weight];
+        console.log(query_string_insert);
+        console.log(insert_values);
+        client.query(query_string_insert, insert_values);
+        // respond that there was no duplicate and the user was registered
+        res.json("Data added!");
+      });
+  });
+
+}); // end add weight
 
 app.get('/userdataraw', function (req, res) {
   // return the user's raw weight data
