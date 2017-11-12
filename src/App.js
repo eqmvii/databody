@@ -137,17 +137,47 @@ class Home extends Component {
   }
 
   render() {
+    var myimage = (<img id="frontpagechart" src="rawweightchart.jpg" className="img-fluid img-thumbnail" alt="weight data chart" />);
+    // disable image
+    //myimage = false;
     return (
-      <div className="row">
-        <div className="col-8">
-          <h3 className="text-center">Welcome!</h3>
-          <p>How many Calories did you consume yesterday? This app will tell you, without knowing what you ate! Of course there's one catch - you're going to need to weigh yourself several times per day, for several days.</p>
-          <p>But if you can keep it up, you'll get data-driven feedback to help you gain, maintain, or lose weight!</p>
-          <div className="alert alert-danger"><strong>DISCLAIMER:</strong> To produce cool data, this app requires you to weigh yourself several times per day, which isn't everyone's idea of fun. Only use Data Body if you can enjoy the information it provides without suffering negative mental health consequences.</div>
+      <div>
+        <div className="row">
+          <div className="col-sm-8 border" id="mysplash">
+            <h3 className="text-danger">Welcome!</h3>
+            <p>How many Calories did you consume yesterday?</p>
+            <p>Data Body can tell you, without you needing to track what you eat! Of course there is one catch - you're going to need to weigh yourself several times per day, for several days. Once you've fed the app enough weight data, it will use Math to calculate how much you've been eating.</p>
+            <div className="text-center">
+              <p>
+                <button className="btn btn-lg btn-success">
+                  <Link to="/register" style={{ "color": "white" }}>
+                    <i className="fa fa-handshake-o" aria-hidden="true">
+                    </i> Register
+                  </Link></button></p>
+            </div>
+            <p>It will take several days to gatehr enough data. But if you can keep it up, you'll get data-driven feedback to help you gain, maintain, or lose weight!</p>
+            <p>The secret is understanding how erratic a person's weight is throughout the day. Stepping on the scale now and then can give you a badly distorted idea of your progress, since a person's weight fluctuates several pounds over a single day. Short term weight loss or gain becomes noise - but with repeated weighins, trends emerge. </p>
+            <p>Take a look for yourself!</p>
+            <h4 className="text-center">Weight Over Time</h4>
+            <p>{myimage}</p>
+            <br />
+
+          </div>
+          <div className="col-sm-4" >
+            <div className="border" id="loginbox">
+            <LoginForm />
+            </div>
+          </div>
         </div>
-        <div className="col-4">
-          <LoginForm />
+
+        <div className="row">
+          <div className="col-10 offset-1">
+            <br />
+            <hr />
+            <div className="alert alert-danger"><strong>DISCLAIMER:</strong> To produce cool data, this app requires you to weigh yourself several times per day, which isn't everyone's idea of fun. Only use Data Body if you think you will be able to enjoy the information it provides without suffering negative mental health consequences. If you might develop a toxic obsession with the scale, turn back now!</div>
+          </div>
         </div>
+
       </div>
     )
   }
@@ -160,13 +190,14 @@ class RegisterForm extends Component {
     this.handleRegister = this.handleRegister.bind(this);
     this.handleFormChange = this.handleFormChange.bind(this);
 
-
     this.state = {
       username: '',
       password: 'choose',
+      activity: 'choose',
+      height: '',
+      age: '',
       error: '',
     }
-
   }
 
   handleFormChange(event) {
@@ -174,7 +205,6 @@ class RegisterForm extends Component {
     const name = event.target.name;
     // use computed object key. Thanks react docs!
     this.setState({ [name]: event.target.value });
-
   }
 
   handleRegister(event) {
@@ -192,6 +222,14 @@ class RegisterForm extends Component {
       this.setState({ error: 'You must select one of the weak passwords.' });
       return;
     }
+    if (this.state.activity === "choose") {
+      this.setState({ error: 'You must set your physical activity level.' });
+      return;
+    }
+    if (this.state.height === '' || this.state.age === '') {
+      this.setState({ error: 'You must enter all data requested.' });
+      return;
+    }
 
     // no validation errors, so attempt to register:
 
@@ -199,9 +237,9 @@ class RegisterForm extends Component {
     registration.username = this.state.username;
     registration.password = this.state.password;
     registration.email = "fake@email.com";
-    registration.activity = 0;
-    registration.height = 100;
-    registration.age = 100;
+    registration.activity = this.state.activity;
+    registration.height = this.state.height;
+    registration.age = this.state.age;
 
     fetch('/register', { credentials: 'include', method: "POST", body: JSON.stringify(registration) })
       .then(res => {
@@ -217,17 +255,26 @@ class RegisterForm extends Component {
             error: 'Username already registered!',
             username: '',
             password: 'choose',
+            activity: 'choose',
+            height: '',
+            age: ''
           });
           return;
         } else {
           // process logging in the newly registered user
           sessionStorage.authed = "true";
           sessionStorage.username = res.username;
-          this.setState({ username: '', password: 'choose', error: '' });
+          this.setState({
+            username: '',
+            password: 'choose',
+            activity: 'choose',
+            height: '',
+            age: '',
+            error: ''
+          });
         }
       })
       .catch(err => console.log(err));
-
   }
 
   render() {
@@ -259,23 +306,79 @@ class RegisterForm extends Component {
               value={this.state.username}
               onChange={this.handleFormChange} />
           </div>
+
           <div className="form-group">
-            <label htmlFor="exampleFormControlSelect1">Password</label>
-            <select className="form-control" id="exampleFormControlSelect1" name="password" onChange={this.handleFormChange} value={this.password}>
+            <label htmlFor="passwordinput">Password</label>
+            <select
+              className="form-control"
+              id="passwordinput"
+              name="password"
+              onChange={this.handleFormChange}
+              value={this.password} >
               <option value="choose">Choose...</option>
               <option value="123">123</option>
               <option value="abc">abc</option>
               <option value="pwd">pwd</option>
             </select>
           </div>
+
+          <div className="form-group">
+            <label htmlFor="activityinput">Average Physical Activity Level</label>
+            <select
+              className="form-control"
+              id="activityinput"
+              name="activity"
+              onChange={this.handleFormChange}
+              value={this.activity} >
+              <option value="choose">Choose...</option>
+              <option value="1">Sedentary: little or not exercise</option>
+              <option value="2">Lightly Active: light exercise 1-3 times per week</option>
+              <option value="3">Moderately Active: moderate exercise 3-5 times per week</option>
+              <option value="4">Very active: hard exercise 6-7 days per week</option>
+              <option value="5">Extremely active: phyiscal job, 2x training, athlete, etc.</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="heightinput">Height (inches)</label>
+            <input
+              className="form-control col-4"
+              id="heightinput"
+              name="height"
+              type="number"
+              min="45"
+              max="102"
+              step="0.5"
+              placeholder="Height (inches)"
+              value={this.state.height}
+              onChange={this.handleFormChange} />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="ageinput">Age</label>
+            <input
+              className="form-control col-4"
+              id="ageinput"
+              name="age"
+              type="number"
+              min="13"
+              max="125"
+              step="1"
+              placeholder="Age (years)"
+              value={this.state.age}
+              onChange={this.handleFormChange} />
+          </div>
+          <br />
+
+
+
           <div className="text-center">
-            <button type="submit" className="btn btn-success" onClick={this.handleRegister}><i className="fa fa-handshake-o" aria-hidden="true"></i> Register</button>
+            <button type="submit" className="btn btn-lg btn-success" onClick={this.handleRegister}><i className="fa fa-handshake-o" aria-hidden="true"></i> Register</button>
           </div>
         </form>)
     }
   }
 }
-
 
 const Register = () => (
   <div className="row">
@@ -287,7 +390,7 @@ const Register = () => (
 
 const Login = () => (
   <div className="row">
-    <div className="col-6 offset-3">
+    <div className="col-4 offset-4">
       <LoginForm />
     </div>
   </div>
@@ -338,8 +441,8 @@ class Weigh extends Component {
     }
 
     // handle various registration error scenarios
-    if (this.state.weight === "") {
-      this.setState({ error: 'You must select enter your weight' });
+    if (this.state.weight === '') {
+      this.setState({ error: 'Enter weight' });
       return;
     }
 
@@ -361,7 +464,7 @@ class Weigh extends Component {
       })
       .catch(err => console.log(err));
   }
-
+  // TODO: This is not responsive and BADLY broken on small displays. R.I.P.
   render() {
     if (this.state.posted) {
       return (<Redirect to={{ pathname: '/stats' }} />);
@@ -369,48 +472,62 @@ class Weigh extends Component {
     if (this.state.message) {
       var response_message = (<div className="alert alert-success"><strong>Success: </strong>{this.state.message}</div>);
     }
+    else if (this.state.error) {
+      var response_message = (<div className="alert alert-danger text-center"><strong>Error</strong> <p>{this.state.error}</p></div>);
+    }
     else {
       var response_message = false;
     }
     return (
       <div className="row">
-        <div className="col-6 offset-3 text-center">
+        <div className="col-sm-2 offset-5 text-center">
           {response_message}
           <form onSubmit={this.handleSubmit}>
 
-            <h3>Add Weight Data</h3>
+            <h3>Weigh-in</h3>
             <br />
+            <div className="card-deck">
+              <div className="card border border-danger w-50" >
+                <div className="card-body">
 
-            <div className="form-group">
-              <label htmlFor="weightinput">Current Weight</label>
-              <input
-                className="form-control col-2 offset-5"
-                id="weightinput"
-                name="weight"
-                type="number"
-                min="50"
-                max="500"
-                step="0.1"
-                placeholder="weight"
-                value={this.state.weight}
-                onChange={this.handleFormChange} />
+                  <div className="form-group">
+                    <label htmlFor="weightinput"><span className="text-danger"><strong>Weight</strong></span></label>
+                    <input
+                      className="form-control"
+                      id="weightinput"
+                      name="weight"
+                      type="number"
+                      min="50"
+                      max="500"
+                      step="0.1"
+                      placeholder="weight (lbs)"
+                      value={this.state.weight}
+                      onChange={this.handleFormChange} />
+                  </div>
+
+                  <div className="text-center">
+                    <p><button
+                      className="btn btn-warning"
+                      name="Submit"
+                      onClick={this.handleSubmit}><i className="fa fa-plus" aria-hidden="true"></i> Add</button></p>
+                  </div>
+                </div>
+
+              </div>
             </div>
 
+            <br />
+            <hr />
             <div className="text-center">
-              <p><button
-                className="btn btn-primary"
-                name="Submit"
-                onClick={this.handleSubmit}><i className="fa fa-plus" aria-hidden="true"></i> Add Data</button></p>
-              <br />
-              <hr />
-              <h4>Demo mode: Load sample data</h4>
-              <p>Press the button to temporarily load a suite of test data</p>
+              <h2>Demo</h2>
+              <p>Load test data instead</p>
               <p>
                 <button
                   className="btn btn-danger"
                   name="fakeMyData"
-                  onClick={this.handleSubmit}>Fake My Data</button></p>
+                  onClick={this.handleSubmit}><i className="fa fa-flask" aria-hidden="true"></i> Fake My Data</button></p>
             </div>
+
 
           </form>
         </div>
@@ -519,7 +636,7 @@ class Stats extends Component {
     var progressbar = (
       <div className="row">
         <div className="col-8 offset-2">
-        <hr />
+          <hr />
           <div className="text-center" id="progressbar" >
             <h4>Progress Bar ({this.state.progress}%)</h4>
             <p style={{ "fontFamily": "monospace", "fontSize": "32px", "fontWeight": "bold" }}>
@@ -534,57 +651,57 @@ class Stats extends Component {
       var dashboard = (<div className="row">
         <div className="col">
           <hr />
-        <div className="card-deck">
+          <div className="card-deck">
 
-        <div className="col-4">
-          <div className="card border border-danger" >
-            <div className="card-body">
-              <h4 className="card-title text-center">Calories</h4>
-              <h6 className="card-subtitle mb-2 text-muted text-center">In and Out</h6>
-              <p className="card-text">
-                <strong>Daily Caloric Needs:</strong> {this.state.data.daily_kcal_needs} Kcal</p>
-              <p className="card-text">
-                <strong>Daily Caloric Expenditure:</strong> {this.state.data.daily_kcal_burn} Kcal</p>
-              <p className="card-text">
-                <strong>Daily Caloric Delta:</strong> {this.state.data.kcal_delta} Kcal  </p>
+            <div className="col-4">
+              <div className="card border border-danger" >
+                <div className="card-body">
+                  <h4 className="card-title text-center">Calories</h4>
+                  <h6 className="card-subtitle mb-2 text-muted text-center">In and Out</h6>
+                  <p className="card-text">
+                    <strong>Daily Caloric Needs:</strong> {this.state.data.daily_kcal_needs} Kcal</p>
+                  <p className="card-text">
+                    <strong>Daily Caloric Expenditure:</strong> {this.state.data.daily_kcal_burn} Kcal</p>
+                  <p className="card-text">
+                    <strong>Daily Caloric Delta:</strong> {this.state.data.kcal_delta} Kcal  </p>
 
 
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-        <div className="col-4">
-          <div className="card border border-danger" >
-            <div className="card-body">
-              <h4 className="card-title text-center">Weight</h4>
-              <h6 className="card-subtitle mb-2 text-muted text-center">Current and Delta</h6>
-              <p className="card-text">
-                <strong>Weight:</strong> {this.state.data.cur_weight} pounds
+            <div className="col-4">
+              <div className="card border border-danger" >
+                <div className="card-body">
+                  <h4 className="card-title text-center">Weight</h4>
+                  <h6 className="card-subtitle mb-2 text-muted text-center">Current and Delta</h6>
+                  <p className="card-text">
+                    <strong>Weight:</strong> {this.state.data.cur_weight} pounds
                 </p>
-              <p className="card-text">
-                <strong>Weight Change:</strong> {this.state.data.weight_delta} pounds per week   </p>
+                  <p className="card-text">
+                    <strong>Weight Change:</strong> {this.state.data.weight_delta} pounds per week   </p>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-        <div className="col-4">
-          <div className="card border border-danger" >
-            <div className="card-body">
-              <h4 className="card-title text-center">Goals</h4>
-              <h6 className="card-subtitle mb-2 text-muted text-center">Squad and Otherwise</h6>
-              <p className="card-text">
-                <strong>To lose weight: </strong>  at [] Kcal / day
+            <div className="col-4">
+              <div className="card border border-danger" >
+                <div className="card-body">
+                  <h4 className="card-title text-center">Goals</h4>
+                  <h6 className="card-subtitle mb-2 text-muted text-center">Squad and Otherwise</h6>
+                  <p className="card-text">
+                    <strong>To lose weight: </strong>  at [] Kcal / day
                 </p>
-              <p className="card-text">
-                <strong>To gain weight:</strong> eat [] Kcal / day
+                  <p className="card-text">
+                    <strong>To gain weight:</strong> eat [] Kcal / day
                 </p>
+                </div>
+              </div>
             </div>
+
           </div>
+
         </div>
-
-      </div>
-
-      </div>
       </div>
       )
     }
@@ -607,10 +724,21 @@ class Stats extends Component {
 
         </div>
 
-
         {dashboard}
+
         <br />
         {progressbar}
+        <br />
+
+        <div className="row text-center">
+          <div className="col">
+            <button className="btn btn-lg btn-warning">
+              <Link to="/weigh" style={{ "color": "black" }}>
+                <i className="fa fa-balance-scale" aria-hidden="true">
+                </i> Weigh-in
+            </Link></button>
+          </div>
+        </div>
 
         <div className="row text-center">
 

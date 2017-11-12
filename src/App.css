@@ -8,12 +8,35 @@
 
 .jumbotron {
   color: rgb(245, 210, 210);
+  /*
+  background-image: url('rawweightchart.jpg');
+  background-size: 100%;
+  background-repeat: no;
+  background-position: center;
+  */ 
   background-color: rgb(58, 11, 11);
 }
 
 button:hover{
   cursor: pointer;
 }
+
 p {
   color: rgb(43, 4, 4);  
+}
+
+#frontpagechart {
+  margin-top: 18px;
+  margin-bottom: 18px;
+}
+
+#loginbox {
+  padding: 12px;
+}
+
+#mysplash {
+  /*
+  background-image: url('rawweightchart.jpg');
+  background-size: 100%;
+  */
 }
