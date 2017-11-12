@@ -91,10 +91,16 @@ IT WORKS!
 
 It has bugs... LOTS of bugs... but it WORKS!
 
-## DEATH OR GLORY
+## Sudden death over time
 
 #### T+47.25 hours
 
 hack hack hack gonna be close
+
+## Together again at the end of all things
+
+#### T+47.9 hours
+
+Going to finish just under the wire! Picked a font in a quick way but there's no time for anything else. 
 
 - - - - - - - - 

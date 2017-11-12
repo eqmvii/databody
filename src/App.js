@@ -2,7 +2,7 @@
 
 // CURRENT STATUS:
 /*
-  Under active development!
+"Ready" to submit!
 */
 
 import React, { Component } from 'react';
@@ -568,7 +568,7 @@ class Weigh extends Component {
                 <div className="card-body">
 
                   <div className="form-group">
-                    <label htmlFor="weightinput"><span className="text-danger"><strong>Weight</strong></span></label>
+                    <label htmlFor="weightinput"><span className="text-danger"><strong>Your Weight</strong></span></label>
                     <input
                       className="form-control"
                       id="weightinput"
@@ -741,7 +741,7 @@ class Stats extends Component {
                   <p className="card-text">
                     Based on your weight data points, you consume an average of <strong> {parseInt(this.state.data.daily_kcal_burn, 10).toLocaleString()} </strong> kcal per day.</p>
                   <p className="card-text">
-                    As a result, on average there is a <strong> {parseInt(this.state.data.kcal_delta, 10).toLocaleString()} </strong> kcal differential every day (for reference, there are about 3,500 kcal in a pound of fat)
+                    As a result, on average there is a <strong> {parseInt(this.state.data.kcal_delta, 10).toLocaleString()} </strong> kcal differential every day (for reference, there are about 3,500 kcal in a pound of fat).
                   </p>
 
 
@@ -781,10 +781,10 @@ class Stats extends Component {
 
                   <br />
                   <p className="card-text">
-                    Consume around {parseInt(this.state.data.minus_a_pound, 10).toLocaleString()} Kcal per day to lose 1 pound per week
+                    Consume around {parseInt(this.state.data.minus_a_pound, 10).toLocaleString()} Kcal per day to lose 1 pound per week.
                 </p>
                   <p className="card-text">
-                    Alternatively, consume around {parseInt(this.state.data.plus_a_pound, 10).toLocaleString()} Kcal per day to gain 1 pound per week
+                    Alternatively, consume around {parseInt(this.state.data.plus_a_pound, 10).toLocaleString()} Kcal per day to gain 1 pound per week.
                 </p>
                 </div>
               </div>
@@ -797,7 +797,7 @@ class Stats extends Component {
       <div className="row">
         <div className="col-sm">
           <br />
-          <div class="alert alert-danger"><strong>Disclaimer:</strong> Your data will be CRAZY if you just enter 10 weights in one short session, as it will be calculating daily averages based on just seconds worth of data. To get reasonable results/information, you will need 7-14 days worth of regular weigh-ins.</div>
+          <div class="alert alert-danger"><strong>Disclaimer:</strong> Your data will be CRAZY if you just entered 10 weights in a short burst, as it will be calculating daily/weekly averages based on just seconds worth of data. Kudos for giving in to the gamification, though! To get reasonable results/information, you will need 7-14 days worth of regular weigh-ins.</div>
           </div>
         </div>
         </div>
