@@ -5,7 +5,6 @@
   Under active development!
 */
 
-
 import React, { Component } from 'react';
 import './App.css';
 import {
@@ -15,7 +14,7 @@ import {
   Link
 } from 'react-router-dom'
 
-class NewLoginForm extends Component {
+class LoginForm extends Component {
   constructor(props) {
     super(props);
 
@@ -131,18 +130,27 @@ class NewLoginForm extends Component {
   }
 }
 
-const Home = () => (
+class Home extends Component {
+
+  componentDidMount() {
+    // TODO ALARMA: auto login if there's already a session
+  }
+
+  render() {
+    return (
   <div className="row">
     <div className="col-8">
-      <h3 className="text-center">Welcome to DataBody!</h3>
-      <p>Contrary to popular belief, Lorem Ipsum is not simply random text. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.</p>
-      <p>The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. Sections 1.10.32 and 1.10.33 from "de Finibus Bonorum et Malorum" by Cicero are also reproduced in their exact original form, accompanied by English versions from the 1914 translation by H. Rackham.</p>
+      <h3 className="text-center">Welcome!</h3>
+      <p>This app can tell you how many calories you eat ever day. Sound too good to be true? Well, there is one catch - you're going to need to weigh yourself several times per day, for several days.</p>
+      <p>But if you can keep it up, you'll unlock useful, data-driven information to help you gain, maintain, or lose weight!</p>
+      <div className="alert alert-danger"><strong>DISCLAIMER:</strong> In order to produce cool data, this app requires you to weigh yourself repeatedly, which can have negative mental health effects. Only use Data Body if you think you can enjoy the information it provides without negative mental health consequences.</div>
     </div>
     <div className="col-4">
-      <NewLoginForm />
+      <LoginForm />
     </div>
   </div>
-)
+)}
+}
 
 
 class RegisterForm extends Component {
@@ -281,7 +289,7 @@ const Login = () => (
   <div className="row">
 
     <div className="col-6 offset-3">
-      <NewLoginForm />
+      <LoginForm />
     </div>
 
   </div>
@@ -403,15 +411,13 @@ class Protected extends Component {
 class Stats extends Component {
   constructor(props) {
     super(props);
-    // this.handleSubmit = this.handleSubmit.bind(this);
-    // this.handleFormChange = this.handleFormChange.bind(this);
+
 
     this.state = {
       progress: '',
       loading: true,
       data: {},
     }
-
   }
 
   componentDidMount() {
@@ -434,7 +440,6 @@ class Stats extends Component {
       .catch(err => console.log(err));
   }
 
-
   render() {
     if (this.state.loading) {
       var status_message = (<p><i className="fa fa-spinner fa-spin" style={{ fontSize: "20px" }}></i></p>);
@@ -442,6 +447,27 @@ class Stats extends Component {
     else {
       var status_message = false;
     }
+    // build the ASCII progress bar. Gamification!
+    if (this.state.progress < 100) {
+      var progXs = parseInt(this.state.progress / 10);
+      var spaces = 10 - progXs;
+      var progressASCIIexes = "x ".repeat(progXs);
+      var progressASCIIunderscores = "_ ".repeat(spaces);
+
+      var progressbar = (
+        <div className="text-center" id="progressbar" >
+          <h4>Progress Bar ({this.state.progress}%)</h4>
+          <p style={{ "fontFamily": "monospace", "fontSize": "28px", "fontWeight": "bold" }}>
+            | <span style={{ "color": "red" }}>{progressASCIIexes}</span>{progressASCIIunderscores}|
+          </p>
+          <br />
+          <p>Keep going! Hit 100% to unlock your caloric analysis!</p>
+        </div>);
+    }
+    else {
+      var progressbar = false;
+    }
+
     return (
       <div className="row">
         <div className="col-6 offset-3">
@@ -452,7 +478,10 @@ class Stats extends Component {
           </div>
           <div className="text-center">
             <p> <strong>height:</strong> {this.state.data.height} inches | <strong>age:</strong> {this.state.data.age} years | <strong>activity level:</strong> ({this.state.data.activity}/5) </p>
-            <p>Data input progress: {this.state.progress}%</p>
+            <br />
+            <div id="progressbar" className="text-center">
+              {progressbar}
+            </div>
           </div>
         </div>
       </div>
@@ -550,8 +579,8 @@ class App extends Component {
 
               <Nav />
               <div className="jumbotron text-center">
-                <h1>Data Body</h1>
-                <h4>Health Data Visualized</h4>
+                <h1>Data Body</h1>                
+                <h4>Calories and Weight as Math</h4>
               </div>
               <Route exact path="/" component={Home} />
               <Route path="/register" component={Register} />
@@ -561,13 +590,13 @@ class App extends Component {
                 console.log("logout clicked, logging out...");
                 sessionStorage.removeItem('authed');
                 sessionStorage.removeItem('username');
+                logoutFetch();
                 return (<Redirect to="/login" />);
               }} />
               <PrivateRoute path="/weigh" component={Weigh} />
               <PrivateRoute path="/stats" component={Stats} />
               <PrivateRoute path="/protected" component={Protected} />
               <br />
-              <p className="text-center"> {this.state.message} </p>
             </main>
           </div>
         </Router>
@@ -575,8 +604,6 @@ class App extends Component {
     );
   }
 }
-
-
 
 const PrivateRoute = ({ component: Component, ...rest }) => (
   <Route {...rest} render={props => (
@@ -588,20 +615,19 @@ const PrivateRoute = ({ component: Component, ...rest }) => (
           state: { from: props.location }
         }} />
       )
-  )} />
-)
+  )} />)
 
 
 const Nav = () => (
   <nav className="navbar navbar-expand-lg navbar-light bg-light justify-content-between">
-    <Link to="/" className="navbar-brand">DataBody</Link>
+    <Link to="/" className="navbar-brand"><img src="/static/databodylogosmall.jpg" alt="brand image"/></Link>
     <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span className="navbar-toggler-icon"></span>
     </button>
     <div className="collapse navbar-collapse" id="navbarNav">
       <ul className="navbar-nav">
         <li className="nav-item">
-          <Link to="/weigh" className="nav-link">Weigh</Link>
+          <Link to="/weigh" className="nav-link">Weigh-in</Link>
         </li>
         <li className="nav-item">
           <Link to="/stats" className="nav-link">Stats</Link>
@@ -622,4 +648,19 @@ const Nav = () => (
     </div>
   </nav>)
 
+function logoutFetch() {
+  // fetch data summary
+  console.log("Logging out");
+  fetch('/logout', { credentials: 'include', method: "GET" })
+    .then(res => {
+      if (res.ok) {
+        return res.json()
+      } else { throw Error(res.statusTest) }
+    })
+    .then(res => {
+      console.log("Server responds with data summary: ");
+      console.log(res);
+    })
+    .catch(err => console.log(err));
+}
 export default App;

@@ -5,7 +5,7 @@ Eric Mancini's NKO 2017 hackathon project
 
 This is my first real hackathon! What could possibly go wrong!
 
-Current Status: The app's front-end skeletal architecture is roughed in, the database works, and you can register + login. Mostly. 
+Current Status: First draft is almost done!
 
 Check blog.MD in the file list for more details of the process! 
 

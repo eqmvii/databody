@@ -1,5 +1,9 @@
 .navbar {
-  background-color: rgb(245, 125, 125) !important;
+  background-color: white !important;
+}
+
+.nav-item {
+  color: rgb(58, 11, 11) !important;
 }
 
 .jumbotron {

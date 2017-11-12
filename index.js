@@ -163,6 +163,13 @@ app.get('/getallweights', function (req, res) {
   });
 });
 
+// routes for testing purposes only
+app.get('/logout', function (req, res) {
+  console.log(`### Logout: Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
+  req.session.loggedin = false;
+  req.session.username = '';
+  res.json("Logout complete");
+});
 
 
 app.post('/login', function (req, res) {
@@ -323,6 +330,7 @@ app.get('/userdatasummary', function (req, res) {
       client.query(weights_query, values)
         .then(resolveWeights => {
           for (let i = 0; i < resolveWeights.rows.length; i++) {
+            // prep data for linnear regression formula
             let weight_pair = {};
             weight_pair.stamp = resolveWeights.rows[i].stamp;
             weight_pair.weight = resolveWeights.rows[i].weight;
@@ -334,7 +342,7 @@ app.get('/userdatasummary', function (req, res) {
           if (data_summary.progress > 100){
             data_summary.progress = 100;
           }
-          
+
           // calculate Harris Benedict Equation - BMR * activity factor
 
           // get user's weight history 
