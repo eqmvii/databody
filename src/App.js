@@ -150,7 +150,7 @@ class Home extends Component {
         <div className="row">
           <div className="col-sm-8 border" id="mysplash">
             <h1 className="text-danger">Welcome!</h1>
-            <p>How many calories do you eat?</p>
+            <p>How many calories do you consume?</p>
             <p>Data Body can tell you, without you needing to track what you eat! Of course there is one catch - you're going to need to weigh yourself several times per day, for several days. Once you've fed the app enough weight data, it will use Math to calculate how much you've been eating.</p>
             <div className="text-center">
               <p>
@@ -961,7 +961,7 @@ class App extends Component {
               <Nav authed={this.state.authed} />
               <div className="jumbotron text-center">
                 <h1>Data Body</h1>
-                <h4>Calorie Data from Weight and Math</h4>
+                <h4>Transform easy-to-collect data into hard-to-know data. Alchemy!</h4>
               </div>
               <Route exact path="/" component={Home} />
               <Route path="/register" component={Register} />
