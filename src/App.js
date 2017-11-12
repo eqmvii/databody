@@ -143,7 +143,7 @@ class Home extends Component {
       <h3 className="text-center">Welcome!</h3>
       <p>This app can tell you how many calories you eat ever day. Sound too good to be true? Well, there is one catch - you're going to need to weigh yourself several times per day, for several days.</p>
       <p>But if you can keep it up, you'll unlock useful, data-driven information to help you gain, maintain, or lose weight!</p>
-      <div className="alert alert-danger"><strong>DISCLAIMER:</strong> In order to produce cool data, this app requires you to weigh yourself repeatedly, which can have negative mental health effects. Only use Data Body if you think you can enjoy the information it provides without negative mental health consequences.</div>
+      <div className="alert alert-danger"><strong>DISCLAIMER:</strong> In order to produce cool data, this app requires you to weigh yourself repeatedly, which isn't everyone's idea of fun. Only use Data Body if you can enjoy the information it provides without suffering negative mental health consequences.</div>
     </div>
     <div className="col-4">
       <LoginForm />
