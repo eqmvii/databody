@@ -424,7 +424,7 @@ const About = () => (
 
       <h3>Technical Details</h3><br />
       <p>
-        The back-end is Node.js/Express/PostgreSQL plus a few helper libraries (express-session, regression, etc.). The front-end is React, via Create-React-App, with React-Router for routing.
+        The back-end is Node.js/Express/PostgreSQL plus a few helper libraries (express-session, regression, etc.). The front-end is React, via Create-React-App, with React-Router for routing and Bootstrap for styling.
       </p>
       <p>
         I probably should have used Redux but hacked something together using sessionStorage and duct tape and prayer instead. Lessons for next time!
