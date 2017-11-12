@@ -372,8 +372,10 @@ app.get('/userdatasummary', function (req, res) {
       daily_kcal_needs: 1600,
       daily_kcal_burn: 2300,
       kcal_delta: 700,
-      cur_weight: 145,
+      cur_weight: 145.23,
       weight_delta: -1.2,
+      plus_a_pound: 3300,
+      minus_a_pound: 1300,
       error: false,
       error_message: '',
       status_message: 'Fake test data being used.',
@@ -396,6 +398,8 @@ app.get('/userdatasummary', function (req, res) {
     kcal_delta: -1,
     cur_weight: -1,
     weight_delta: -1,
+    plus_a_pound: -1,
+    minus_a_pound: -1,
     error: false,
     error_message: '',
     status_message: 'Insufficient weight data. Keep adding more!',
@@ -424,6 +428,10 @@ app.get('/userdatasummary', function (req, res) {
             weight_pair.stamp = resolveWeights.rows[i].stamp;
             weight_pair.weight = resolveWeights.rows[i].weight;
             data_summary.weights.push(weight_pair);
+            // TODO Hack/fix
+            if (i === resolveWeights.rows.length - 1){
+              data_summary.cur_weight = resolveWeights.rows[i].weight;
+            }
           }
 
           // TODO: Improve this formula
@@ -435,6 +443,14 @@ app.get('/userdatasummary', function (req, res) {
           }
 
           // calculate Harris Benedict Equation - BMR * activity factor
+          // pounds to kg
+
+          var kg = 1;
+          // inches to cm
+          var cm = 1;
+
+          // averaged Men/Women formula from Mifflin/St Jeor 1990 paper
+          data_summary.daily_kcal_needs = (10 * kg) + (6.25 * cm) + (5 * data_summary.age) - 75;
 
           // get user's weight history 
 

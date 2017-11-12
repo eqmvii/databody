@@ -92,7 +92,7 @@ class LoginForm extends Component {
       return (
         <form onSubmit={this.handleLogin}>
 
-          <h3 className="text-center">Login</h3>
+          <h3 className="text-center text-danger">Login</h3>
 
           {error_message}
 
@@ -656,14 +656,13 @@ class Stats extends Component {
             <div className="col-4">
               <div className="card border border-danger" >
                 <div className="card-body">
-                  <h4 className="card-title text-center">Calories</h4>
-                  <h6 className="card-subtitle mb-2 text-muted text-center">In and Out</h6>
+                  <h4 className="card-title text-center">Daily Calories</h4>
                   <p className="card-text">
-                    <strong>Daily Caloric Needs:</strong> {this.state.data.daily_kcal_needs} Kcal</p>
+                    <strong>You burn:</strong> {parseInt(this.state.data.daily_kcal_needs,10).toLocaleString()} Kcal</p>
                   <p className="card-text">
-                    <strong>Daily Caloric Expenditure:</strong> {this.state.data.daily_kcal_burn} Kcal</p>
+                    <strong>You consume:</strong> {parseInt(this.state.data.daily_kcal_burn,10).toLocaleString()} Kcal</p>
                   <p className="card-text">
-                    <strong>Daily Caloric Delta:</strong> {this.state.data.kcal_delta} Kcal  </p>
+                    <strong>For a difference of:</strong> {parseInt(this.state.data.kcal_delta,10).toLocaleString()} Kcal  </p>
 
 
                 </div>
@@ -676,10 +675,10 @@ class Stats extends Component {
                   <h4 className="card-title text-center">Weight</h4>
                   <h6 className="card-subtitle mb-2 text-muted text-center">Current and Delta</h6>
                   <p className="card-text">
-                    <strong>Weight:</strong> {this.state.data.cur_weight} pounds
+                    <strong>You Weigh:</strong> {parseFloat(this.state.data.cur_weight).toLocaleString()} pounds
                 </p>
                   <p className="card-text">
-                    <strong>Weight Change:</strong> {this.state.data.weight_delta} pounds per week   </p>
+                    <strong>That changes by:</strong> {this.state.data.weight_delta} pounds per week   </p>
                 </div>
               </div>
             </div>
@@ -690,10 +689,10 @@ class Stats extends Component {
                   <h4 className="card-title text-center">Goals</h4>
                   <h6 className="card-subtitle mb-2 text-muted text-center">Squad and Otherwise</h6>
                   <p className="card-text">
-                    <strong>To lose weight: </strong>  at [] Kcal / day
+                    To lose a pound per week, eat {parseInt(this.state.data.minus_a_pound,10).toLocaleString()} Kcal per day
                 </p>
                   <p className="card-text">
-                    <strong>To gain weight:</strong> eat [] Kcal / day
+                    To gain a pound per week, eat eat {parseInt(this.state.data.plus_a_pound,10).toLocaleString()} Kcal per day
                 </p>
                 </div>
               </div>
@@ -874,7 +873,7 @@ class App extends Component {
                 sessionStorage.removeItem('authed');
                 sessionStorage.removeItem('username');
                 logoutFetch();
-                return (<Redirect to="/login" />);
+                return (<Redirect to="/" />);
               }} />
               <PrivateRoute path="/weigh" component={Weigh} />
               <PrivateRoute path="/stats" component={Stats} />
@@ -894,7 +893,7 @@ const PrivateRoute = ({ component: Component, ...rest }) => (
       <Component {...props} />
     ) : (
         <Redirect to={{
-          pathname: '/login',
+          pathname: '/',
           state: { from: props.location }
         }} />
       )
