@@ -414,7 +414,7 @@ class Stats extends Component {
     super(props);
 
     this.state = {
-      progress: '',
+      progress: -1,
       loading: true,
       data: {},
     }
@@ -431,6 +431,10 @@ class Stats extends Component {
       .then(res => {
         console.log("Server responds with data summary: ");
         console.log(res);
+        if (res.error) {
+          console.log (res.error_message);
+          return;
+        }
         this.setState({
           loading: false,
           progress: res.progress,
@@ -680,7 +684,7 @@ const PrivateRoute = ({ component: Component, ...rest }) => (
 
 const Nav = () => (
   <nav className="navbar navbar-expand-lg navbar-light bg-light justify-content-between">
-    <Link to="/" className="navbar-brand"><img src="/static/databodylogosmall.jpg" alt="brand image" /></Link>
+    <Link to="/" className="navbar-brand"><img src="databodylogosmall.jpg" alt="brand image" /></Link>
     <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span className="navbar-toggler-icon"></span>
     </button>

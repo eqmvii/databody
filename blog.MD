@@ -72,4 +72,15 @@ My main database interfacing routes are complete and I've got something visible 
 
 Maybe I need more coffee...
 
+
+## DEATH OR GLORY
+
+#### T+38 hours
+
+Wish I had a counter of bugs created vs. bugs caused.
+
+Also another morning of waking up to discover bugs I missed in the final sprint before going to sleep, which makes me excited for day-after-the-hackathon bugs!
+
+Things are coming together, I may actually be on schedule for getting the core of my project up and running on schedule!
+
 - - - - - - - - 

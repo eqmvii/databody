@@ -128,7 +128,10 @@ app.post('/register', function (req, res) {
         }
         else {
           console.log("It's a unique username, and I can register it!");
-          // TODO: store to session
+          // Store the session
+          req.session.loggedin = true;
+          req.session.username = registration.username;
+
           var query_string_insert = "INSERT INTO databody_users (username, password, email, activity, height, age) VALUES ($1, $2, $3, $4, $5, $6)";
           var insert_values = [registration.username, registration.password, registration.email, registration.activity, registration.height, registration.age];
           console.log(query_string_insert);
@@ -223,7 +226,9 @@ app.post('/addweight', function (req, res) {
   console.log(`### ADD WEIGHT: Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
   if (!req.session.loggedin) {
     console.log("Error: Unauthorized add weight POST route request");
-    res.json("ERROR: Session error; unauthorized. Probably Eric's fault");
+    res.json({
+      error: true, 
+      error_message: "ERROR: Session error; unauthorized. Probably Eric's fault" });
     return;
   }
   // node.js boiilterplate for handling a body stream from PUT
@@ -262,7 +267,9 @@ app.get('/userdataraw', function (req, res) {
   console.log(`### USER DATA RAW: Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
   if (!req.session.loggedin) {
     console.log("Error: Unauthorized GET data route request");
-    res.json("ERROR: Session error; unauthorized. Probably Eric's fault.");
+    res.json({
+      error: true, 
+      error_message: "ERROR: Session error; unauthorized. Probably Eric's fault" });
     return;
   }
   var username = req.session.username;
@@ -291,7 +298,9 @@ app.get('/userdatasummary', function (req, res) {
   console.log(`### USER DATA SUMMARY: Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
   if (!req.session.loggedin) {
     console.log("Error: Unauthorized GET data route request");
-    res.json("ERROR: Session error; unauthorized. Probably Eric's fault.");
+    res.json({
+      error: true, 
+      error_message: "ERROR: Session error; unauthorized. Probably Eric's fault" });
     return;
   }
 
