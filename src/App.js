@@ -138,18 +138,19 @@ class Home extends Component {
 
   render() {
     return (
-  <div className="row">
-    <div className="col-8">
-      <h3 className="text-center">Welcome!</h3>
-      <p>This app can tell you how many calories you eat ever day. Sound too good to be true? Well, there is one catch - you're going to need to weigh yourself several times per day, for several days.</p>
-      <p>But if you can keep it up, you'll unlock useful, data-driven information to help you gain, maintain, or lose weight!</p>
-      <div className="alert alert-danger"><strong>DISCLAIMER:</strong> In order to produce cool data, this app requires you to weigh yourself repeatedly, which isn't everyone's idea of fun. Only use Data Body if you can enjoy the information it provides without suffering negative mental health consequences.</div>
-    </div>
-    <div className="col-4">
-      <LoginForm />
-    </div>
-  </div>
-)}
+      <div className="row">
+        <div className="col-8">
+          <h3 className="text-center">Welcome!</h3>
+          <p>This app will tell you how many calories you eat ever day, without tracking what you eat. Sound too good to be true? There is one catch - you're going to need to weigh yourself several times per day, for several days.</p>
+          <p>But if you can keep it up, you'll get data-driven feedback to help you gain, maintain, or lose weight!</p>
+          <div className="alert alert-danger"><strong>DISCLAIMER:</strong> In order to produce cool data, this app requires you to weigh yourself repeatedly, which isn't everyone's idea of fun. Only use Data Body if you can enjoy the information it provides without suffering negative mental health consequences.</div>
+        </div>
+        <div className="col-4">
+          <LoginForm />
+        </div>
+      </div>
+    )
+  }
 }
 
 
@@ -412,7 +413,6 @@ class Stats extends Component {
   constructor(props) {
     super(props);
 
-
     this.state = {
       progress: '',
       loading: true,
@@ -449,42 +449,102 @@ class Stats extends Component {
     }
     // build the ASCII progress bar. Gamification!
     if (this.state.progress < 100) {
+      var dashboard = false;
       var progXs = parseInt(this.state.progress / 10);
       var spaces = 10 - progXs;
       var progressASCIIexes = "x ".repeat(progXs);
       var progressASCIIunderscores = "_ ".repeat(spaces);
 
       var progressbar = (
-        <div className="text-center" id="progressbar" >
-          <h4>Progress Bar ({this.state.progress}%)</h4>
-          <p style={{ "fontFamily": "monospace", "fontSize": "28px", "fontWeight": "bold" }}>
-            | <span style={{ "color": "red" }}>{progressASCIIexes}</span>{progressASCIIunderscores}|
+        <div className="col-6 offset-3">
+          <div className="text-center" id="progressbar" >
+            <h4>Progress Bar ({this.state.progress}%)</h4>
+            <p style={{ "fontFamily": "monospace", "fontSize": "32px", "fontWeight": "bold" }}>
+              | <span style={{ "color": "red" }}>{progressASCIIexes}</span>{progressASCIIunderscores}|
           </p>
-          <br />
-          <p>Keep going! Hit 100% to unlock your caloric analysis!</p>
+            <br />
+            <p>Keep going! Hit 100% to unlock your caloric analysis!</p>
+          </div>
         </div>);
     }
     else {
       var progressbar = false;
+      var dashboard = (<div className="card-deck">
+
+          <div className="col-4">
+            <div className="card border border-danger" >
+              <div className="card-body">
+                <h4 className="card-title text-center">Calories</h4>
+                <h6 className="card-subtitle mb-2 text-muted text-center">In and Out</h6>
+                <p className="card-text">
+                  <strong>Daily Caloric Needs:</strong> {this.state.data.daily_kcal_needs} Kcal</p>
+                  <p className="card-text">
+                  <strong>Daily Caloric Expenditure:</strong> {this.state.data.daily_kcal_burn} Kcal</p>
+                  <p className="card-text">
+                  <strong>Daily Caloric Delta:</strong> {this.state.data.kcal_delta} Kcal  </p>
+
+             
+              </div>
+            </div>
+          </div>
+
+          <div className="col-4">
+            <div className="card border border-danger" >
+              <div className="card-body">
+                <h4 className="card-title text-center">Weight</h4>
+                <h6 className="card-subtitle mb-2 text-muted text-center">Current and Delta</h6>
+                <p className="card-text">
+                  <strong>Weight:</strong> {this.state.data.cur_weight} pounds
+                </p>  
+                <p className="card-text">
+                  <strong>Weight Change:</strong> {this.state.data.weight_delta} pounds per week   </p>                 
+                  </div>
+            </div>
+          </div>
+
+          <div className="col-4">
+            <div className="card border border-danger" >
+              <div className="card-body">
+                <h4 className="card-title text-center">Goals</h4>
+                <h6 className="card-subtitle mb-2 text-muted text-center">Squad and Otherwise</h6>
+                <p className="card-text">
+                  <strong>To lose weight: </strong>  at [] Kcal / day
+                </p>  
+                <p className="card-text">
+                  <strong>To gain weight:</strong> eat [] Kcal / day
+                </p>  
+              </div>
+            </div>
+          </div>
+
+        </div>
+      )
     }
 
     return (
-      <div className="row">
-        <div className="col-6 offset-3">
+      <div>
+        <div className="row">
 
-          <h2 className="text-center">Hello {sessionStorage.username}</h2>
-          <div className="text-center">
-            {status_message}
-          </div>
-          <div className="text-center">
-            <p> <strong>height:</strong> {this.state.data.height} inches | <strong>age:</strong> {this.state.data.age} years | <strong>activity level:</strong> ({this.state.data.activity}/5) </p>
-            <br />
-            <div id="progressbar" className="text-center">
-              {progressbar}
+          <div className="col-6 offset-3">
+            <h2 className="text-center">Hello {sessionStorage.username}</h2>
+            <div className="text-center">
+              {status_message}
+            </div>
+            <div className="text-center">
+              <p> <strong>Height:</strong> {this.state.data.height} inches | <strong>Age:</strong> {this.state.data.age} years | <strong>Activity Level:</strong> ({this.state.data.activity}/5) </p>
+              <br />
             </div>
           </div>
+
         </div>
-      </div>
+
+          {progressbar}
+          {dashboard}
+
+ 
+
+      </div >
+
     )
   }
 }
@@ -579,7 +639,7 @@ class App extends Component {
 
               <Nav />
               <div className="jumbotron text-center">
-                <h1>Data Body</h1>                
+                <h1>Data Body</h1>
                 <h4>Calories and Weight as Math</h4>
               </div>
               <Route exact path="/" component={Home} />
@@ -620,7 +680,7 @@ const PrivateRoute = ({ component: Component, ...rest }) => (
 
 const Nav = () => (
   <nav className="navbar navbar-expand-lg navbar-light bg-light justify-content-between">
-    <Link to="/" className="navbar-brand"><img src="/static/databodylogosmall.jpg" alt="brand image"/></Link>
+    <Link to="/" className="navbar-brand"><img src="/static/databodylogosmall.jpg" alt="brand image" /></Link>
     <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span className="navbar-toggler-icon"></span>
     </button>
