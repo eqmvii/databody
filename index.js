@@ -3,6 +3,8 @@ const helmet = require('helmet');
 const expressEnforcesSSL = require('express-enforces-ssl');
 const { Client } = require('pg');
 const session = require('express-session');
+const regression = require('regression');
+
 
 // TODO: Add express-session to protect routes
 
@@ -133,7 +135,7 @@ app.post('/register', function (req, res) {
           req.session.username = registration.username;
 
           var query_string_insert = "INSERT INTO databody_users (username, password, email, activity, height, age) VALUES ($1, $2, $3, $4, $5, $6)";
-          var insert_values = [registration.username, registration.password, registration.email, registration.activity, registration.height, registration.age];
+          var insert_values = [registration.username, registration.password, registration.email, registration.activity, parseInt(registration.height,10), registration.age];
           console.log(query_string_insert);
           console.log(insert_values);
           client.query(query_string_insert, insert_values);
@@ -204,7 +206,7 @@ app.get('/deletemydata', function (req, res) {
   }
   var username = req.session.username;
 
-  req.session.fakedata = false;  
+  req.session.fakedata = false;
   var name_check_query = "SELECT * FROM databody_users WHERE username = $1";
   var name_check_values = [username];
 
@@ -219,7 +221,7 @@ app.get('/deletemydata', function (req, res) {
         .then(resolve => {
           res.json({ error: false, error_message: '' });
         })
-      }); 
+    });
 
 });
 
@@ -293,7 +295,9 @@ app.post('/addweight', function (req, res) {
     console.log("Weight datapoint:");
     console.log(body);
     var username = body.username;
-    var weight = parseInt(body.weight, 10);
+    // TODO - ALARMA - BUG - no time to fix, store weight as an int so multiply by 10 for precision
+    // uh, always divide weight by 10 when retrieving it, #WhatCouldPossiblyGoWrong
+    var weight = parseInt( (10 * body.weight), 10);
 
     // Check to see if username is already registered
     var name_check_query = "SELECT * FROM databody_users WHERE username = $1";
@@ -358,6 +362,10 @@ app.get('/userdatasummary', function (req, res) {
     return;
   }
 
+  // Harris–Benedict_equation activity level constants
+  // indices keyed to user input for activity level
+  const ACTIVITY = [0, 1.2, 1.375, 1.55, 1.725, 1.9];
+
   var username = req.session.username;
   // if the fake-my-data flag is on, skip the function and respond with fake data
   if (req.session.fakedata) {
@@ -368,6 +376,7 @@ app.get('/userdatasummary', function (req, res) {
       age: 30,
       activity: 2,
       weights: [],
+      lin_reg_weights: [],
       progress: 101,
       daily_kcal_needs: 1600,
       daily_kcal_burn: 2300,
@@ -392,6 +401,7 @@ app.get('/userdatasummary', function (req, res) {
     age: -1,
     activity: -1,
     weights: [],
+    lin_reg_weights: [],
     progress: -1,
     daily_kcal_needs: -1,
     daily_kcal_burn: -1,
@@ -409,6 +419,11 @@ app.get('/userdatasummary', function (req, res) {
   var name_check_query = "SELECT * FROM databody_users WHERE username = $1";
   var name_check_values = [username];
 
+  // variable to hold the prior time stamp for linear regression data tabulation
+  var last_stamp;
+  var temp_pair;
+  var first_stamp;
+
   client.query(name_check_query, name_check_values)
     .then(resolveUser => {
       // store user table data for response
@@ -418,23 +433,54 @@ app.get('/userdatasummary', function (req, res) {
       data_summary.activity = resolveUser.rows[0].activity;
 
       // Prepare to get weight data
-      var weights_query = "SELECT * FROM databody_weights WHERE userid =$1";
+      var weights_query = "SELECT * FROM databody_weights WHERE userid =$1 ORDER BY stamp asc";
       var values = [data_summary.userid];
       client.query(weights_query, values)
         .then(resolveWeights => {
           for (let i = 0; i < resolveWeights.rows.length; i++) {
+            // oldest comes first
+            //console.log(resolveWeights.rows[i].stamp.toLocaleString());
             // prep data for linnear regression formula
+            // If it's the first step, give it a 0 days elapsed
+            if (i === 0){
+              temp_pair = [];
+              temp_pair[0] = 0;
+              temp_pair[1] = resolveWeights.rows[i].weight / 10;
+              data_summary.lin_reg_weights.push(temp_pair);
+              first_stamp = resolveWeights.rows[i].stamp;
+            } 
+            else {
+              // Since it's not the first data point
+              temp_pair = [];
+              // calculate elapsed MILLISECONDS since first point
+              time_elapsed = resolveWeights.rows[i].stamp - first_stamp;
+              // convert to days
+              time_elapsed = (((time_elapsed / 1000 ) / 60 ) / 60) / 24;
+
+              // TESTING HACK ALARMA !!! TODO UNDO THIS !!!!
+              // Add a day between data points for sanity
+              time_elapsed += i;
+
+              console.log(`Days elapsed: ${time_elapsed}`);
+              temp_pair[0] = time_elapsed;              
+              temp_pair[1] = resolveWeights.rows[i].weight / 10;
+              data_summary.lin_reg_weights.push(temp_pair);
+            }
+
             let weight_pair = {};
             weight_pair.stamp = resolveWeights.rows[i].stamp;
-            weight_pair.weight = resolveWeights.rows[i].weight;
+            weight_pair.weight = resolveWeights.rows[i].weight / 10;
             data_summary.weights.push(weight_pair);
             // TODO Hack/fix
-            if (i === resolveWeights.rows.length - 1){
-              data_summary.cur_weight = resolveWeights.rows[i].weight;
+            if (i === resolveWeights.rows.length - 1) {
+              data_summary.cur_weight = resolveWeights.rows[i].weight / 10;
             }
           }
+          var lin_reg_calcs = regression.linear(data_summary.lin_reg_weights, {precision: 6});
+          // console.log(lin_reg_calcs);
+          var slope = lin_reg_calcs.equation[0];
 
-          // TODO: Improve this formula
+          // TODO: Improve this formula to do more than just count to 10
           data_summary.progress = parseInt((data_summary.weights.length / 10) * 100, 10);
           if (data_summary.progress >= 100) {
             data_summary.progress = 100;
@@ -444,24 +490,26 @@ app.get('/userdatasummary', function (req, res) {
 
           // calculate Harris Benedict Equation - BMR * activity factor
           // pounds to kg
-
-          var kg = 1;
+          var kg = data_summary.cur_weight * 0.45359237;
           // inches to cm
-          var cm = 1;
-
+          var cm = data_summary.height * 2.54;
           // averaged Men/Women formula from Mifflin/St Jeor 1990 paper
           data_summary.daily_kcal_needs = (10 * kg) + (6.25 * cm) + (5 * data_summary.age) - 75;
+          // multiply by activity level
+          data_summary.daily_kcal_needs = data_summary.daily_kcal_needs * ACTIVITY[data_summary.activity];
+          // calculate kcal delta
+          // est. 3500 Kcal / pound
+          data_summary.kcal_delta = ((slope * 7) * 3500) / 7;
 
-          // get user's weight history 
+          // calculate daily kcal
+          data_summary.daily_kcal_burn = data_summary.kcal_delta + data_summary.daily_kcal_needs;
+          
+          // calculate weight delta
+          data_summary.weight_delta = ((data_summary.kcal_delta * 7) / 3500).toFixed(3);
 
-          // If less than 30 data points, return
-
-          // If more than 30 data points, 
-
-          // Run calculations on the resulting data:
-          // y = mx + B
-
-          // current weight
+          // calculate plus/minus a pound
+          data_summary.plus_a_pound = data_summary.daily_kcal_needs + 500;
+          data_summary.minus_a_pound = data_summary.daily_kcal_needs - 500;
 
           res.json(data_summary);
         }); // end weights table then

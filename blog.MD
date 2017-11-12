@@ -83,4 +83,12 @@ Also another morning of waking up to discover bugs I missed in the final sprint 
 
 Things are coming together, I may actually be on schedule for getting the core of my project up and running on schedule!
 
+## DEATH OR GLORY
+
+#### T+45 hours
+
+IT WORKS!
+
+It has bugs... LOTS of bugs... but it WORKS!
+
 - - - - - - - - 

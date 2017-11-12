@@ -5,7 +5,7 @@ Eric Mancini's NKO 2017 hackathon project
 
 This is my first real hackathon! What could possibly go wrong!
 
-Current Status: First draft is almost done!
+Current Status: First draft done with 2.5 hours to spair!
 
 Check blog.MD in the file list for more details of the process! 
 

@@ -50,9 +50,9 @@ var test_data = [
     [141.2, 7.33]   
 ]
 
-// swap data because I am dumb
+// reverse data pairs because I am dumb
 for (let i = 0; i < test_data.length; i++){
-    var holder = test_data[i][0];
+    let holder = test_data[i][0];
     test_data[i][0] = test_data[i][1];
     test_data[i][1] = holder;   
 }
@@ -112,6 +112,8 @@ data_summary.daily_kcal_needs = (10 * kg) + (6.25 * cm) + (5 * data_summary.age)
 // y = mx + B
 
 // current weight
+
+console.log(new Date() - new Date())
 
 
 

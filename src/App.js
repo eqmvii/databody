@@ -137,7 +137,7 @@ class Home extends Component {
   }
 
   render() {
-    var myimage = (<img id="frontpagechart" src="rawweightchart.jpg" className="img-fluid img-thumbnail" alt="weight data chart" />);
+    var myimage = (<img id="frontpagechart" src="weightchart.png" className="img-fluid img-thumbnail" alt="weight data chart" />);
     // disable image
     //myimage = false;
     return (
@@ -149,15 +149,15 @@ class Home extends Component {
             <p>Data Body can tell you, without you needing to track what you eat! Of course there is one catch - you're going to need to weigh yourself several times per day, for several days. Once you've fed the app enough weight data, it will use Math to calculate how much you've been eating.</p>
             <div className="text-center">
               <p>
-                <button className="btn btn-lg btn-success">
-                  <Link to="/register" style={{ "color": "white" }}>
+              <Link to="/register" style={{ "color": "white" }}>
+                <button className="btn btn-success">
                     <i className="fa fa-handshake-o" aria-hidden="true">
                     </i> Register
-                  </Link></button></p>
+                  </button></Link></p>
             </div>
             <p>It will take several days to gatehr enough data. But if you can keep it up, you'll get data-driven feedback to help you gain, maintain, or lose weight!</p>
             <p>The secret is understanding how erratic a person's weight is throughout the day. Stepping on the scale now and then can give you a badly distorted idea of your progress, since a person's weight fluctuates several pounds over a single day. Short term weight loss or gain becomes noise - but with repeated weighins, trends emerge. </p>
-            <p>Take a look for yourself!</p>
+            <p>Take a look at the below example of the method in action!</p>
             <h4 className="text-center">Weight Over Time</h4>
             <p>{myimage}</p>
             <br />
@@ -348,7 +348,7 @@ class RegisterForm extends Component {
               type="number"
               min="45"
               max="102"
-              step="0.5"
+              step="1"
               placeholder="Height (inches)"
               value={this.state.height}
               onChange={this.handleFormChange} />
@@ -603,6 +603,7 @@ class Stats extends Component {
       .catch(err => console.log(err));
   }
 
+  // BUG / TODO: Not responsive, looks terrible on mobile, sorry!
   render() {
     if (this.state.loading) {
       var status_message = (<p><i className="fa fa-spinner fa-spin" style={{ fontSize: "20px" }}></i></p>);
@@ -627,7 +628,7 @@ class Stats extends Component {
       color = "orange"
     }
     else if (progXs <= 9) {
-      color = "yellow"
+      color = "rgb(209, 186, 12)";
     }
     else {
       color = "green"
@@ -657,8 +658,9 @@ class Stats extends Component {
               <div className="card border border-danger" >
                 <div className="card-body">
                   <h4 className="card-title text-center">Daily Calories</h4>
+                  <h6 className="card-subtitle mb-2 text-muted text-center">burned and consumed</h6>
                   <p className="card-text">
-                    <strong>You burn:</strong> {parseInt(this.state.data.daily_kcal_needs,10).toLocaleString()} Kcal</p>
+                    <strong>You burn:</strong> {parseInt(this.state.data.daily_kcal_needs,10).toLocaleString()} Kcal per day</p>
                   <p className="card-text">
                     <strong>You consume:</strong> {parseInt(this.state.data.daily_kcal_burn,10).toLocaleString()} Kcal</p>
                   <p className="card-text">
@@ -673,7 +675,7 @@ class Stats extends Component {
               <div className="card border border-danger" >
                 <div className="card-body">
                   <h4 className="card-title text-center">Weight</h4>
-                  <h6 className="card-subtitle mb-2 text-muted text-center">Current and Delta</h6>
+                  <h6 className="card-subtitle mb-2 text-muted text-center">curret and direction</h6>
                   <p className="card-text">
                     <strong>You Weigh:</strong> {parseFloat(this.state.data.cur_weight).toLocaleString()} pounds
                 </p>
@@ -686,13 +688,13 @@ class Stats extends Component {
             <div className="col-4">
               <div className="card border border-danger" >
                 <div className="card-body">
-                  <h4 className="card-title text-center">Goals</h4>
-                  <h6 className="card-subtitle mb-2 text-muted text-center">Squad and Otherwise</h6>
+                  <h4 className="card-title text-center">Targets</h4>
+                  <h6 className="card-subtitle mb-2 text-muted text-center">for weight gain or loss</h6>
                   <p className="card-text">
-                    To lose a pound per week, eat {parseInt(this.state.data.minus_a_pound,10).toLocaleString()} Kcal per day
+                    Consume {parseInt(this.state.data.minus_a_pound,10).toLocaleString()} Kcal per day to lose 1 pound per week
                 </p>
                   <p className="card-text">
-                    To gain a pound per week, eat eat {parseInt(this.state.data.plus_a_pound,10).toLocaleString()} Kcal per day
+                    Eat {parseInt(this.state.data.plus_a_pound,10).toLocaleString()} Kcal per day to gain 1 pound per week
                 </p>
                 </div>
               </div>
@@ -717,7 +719,6 @@ class Stats extends Component {
             <div className="text-center">
               <div className={this.state.alert_class}><strong>Data Status:</strong> {this.state.status_message} </div>
               <p> <strong>Height:</strong> {this.state.data.height} inches | <strong>Age:</strong> {this.state.data.age} years | <strong>Activity Level:</strong> ({this.state.data.activity}/5) </p>
-              <br />
             </div>
           </div>
 
@@ -731,11 +732,12 @@ class Stats extends Component {
 
         <div className="row text-center">
           <div className="col">
+          <Link to="/weigh" style={{ "color": "black" }}>
             <button className="btn btn-lg btn-warning">
-              <Link to="/weigh" style={{ "color": "black" }}>
+             
                 <i className="fa fa-balance-scale" aria-hidden="true">
                 </i> Weigh-in
-            </Link></button>
+            </button></Link>
           </div>
         </div>
 
