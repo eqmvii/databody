@@ -134,6 +134,7 @@ class Home extends Component {
 
   componentDidMount() {
     // TODO ALARMA: auto login if there's already a session
+    // seriously do it
   }
 
   render() {
