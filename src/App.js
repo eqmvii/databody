@@ -121,7 +121,7 @@ class LoginForm extends Component {
             />
           </div>
           <div className="text-center">
-            <button type="submit" className="btn btn-primary" onClick={this.handleLogin}>Login</button>
+            <button type="submit" className="btn btn-primary" onClick={this.handleLogin}><i class="fa fa-sign-in" aria-hidden="true"></i> Login</button>
           </div>
 
         </form>
@@ -141,9 +141,9 @@ class Home extends Component {
       <div className="row">
         <div className="col-8">
           <h3 className="text-center">Welcome!</h3>
-          <p>This app will tell you how many calories you eat ever day, without tracking what you eat. Sound too good to be true? There is one catch - you're going to need to weigh yourself several times per day, for several days.</p>
+          <p>How many Calories did you consume yesterday? This app will tell you, without knowing what you ate! Of course there's one catch - you're going to need to weigh yourself several times per day, for several days.</p>
           <p>But if you can keep it up, you'll get data-driven feedback to help you gain, maintain, or lose weight!</p>
-          <div className="alert alert-danger"><strong>DISCLAIMER:</strong> In order to produce cool data, this app requires you to weigh yourself repeatedly, which isn't everyone's idea of fun. Only use Data Body if you can enjoy the information it provides without suffering negative mental health consequences.</div>
+          <div className="alert alert-danger"><strong>DISCLAIMER:</strong> To produce cool data, this app requires you to weigh yourself several times per day, which isn't everyone's idea of fun. Only use Data Body if you can enjoy the information it provides without suffering negative mental health consequences.</div>
         </div>
         <div className="col-4">
           <LoginForm />
@@ -269,10 +269,9 @@ class RegisterForm extends Component {
             </select>
           </div>
           <div className="text-center">
-            <button type="submit" className="btn btn-primary" onClick={this.handleRegister}>Submit</button>
+            <button type="submit" className="btn btn-success" onClick={this.handleRegister}><i class="fa fa-handshake-o" aria-hidden="true"></i> Register</button>
           </div>
-        </form>
-      )
+        </form>)
     }
   }
 }
@@ -288,11 +287,9 @@ const Register = () => (
 
 const Login = () => (
   <div className="row">
-
     <div className="col-6 offset-3">
       <LoginForm />
     </div>
-
   </div>
 )
 
@@ -322,6 +319,23 @@ class Weigh extends Component {
     console.log(" ### WEIGHT SUBMIT ###");
     console.log("State: ");
     console.log(this.state);
+    console.log(event.target.name);
+
+    if (event.target.name === "fakeMyData") {
+      console.log("Faking test data...");
+      fetch('/fakemydata', { credentials: 'include', method: "GET" })
+        .then(res => {
+          if (res.ok) {
+            return res.json()
+          } else { throw Error(res.statusTest) }
+        })
+        .then(res => {
+          console.log("Server responds: ");
+          console.log(res);
+          this.setState({ weight: '', message: res, posted: true });
+        })
+        .catch(err => console.log(err));
+    }
 
     // handle various registration error scenarios
     if (this.state.weight === "") {
@@ -383,9 +397,19 @@ class Weigh extends Component {
             </div>
 
             <div className="text-center">
-              <button
+              <p><button
                 className="btn btn-primary"
-                onClick={this.handleSubmit}>Submit</button>
+                name="Submit"
+                onClick={this.handleSubmit}><i class="fa fa-plus" aria-hidden="true"></i> Add Data</button></p>
+              <br />
+              <hr />
+              <h4>Demo mode: Load sample data</h4>
+              <p>Press the button to temporarily load a suite of test data</p>
+              <p>
+                <button
+                  className="btn btn-danger"
+                  name="fakeMyData"
+                  onClick={this.handleSubmit}>Fake My Data</button></p>
             </div>
 
           </form>
@@ -413,11 +437,18 @@ class Stats extends Component {
   constructor(props) {
     super(props);
 
+    this.handleDelete = this.handleDelete.bind(this);
+
     this.state = {
       progress: -1,
       loading: true,
       data: {},
     }
+  }
+
+  handleDelete(event) {
+    event.preventDefault;
+    alert("Woah deleting your data woah!");
   }
 
   componentDidMount() {
@@ -432,7 +463,7 @@ class Stats extends Component {
         console.log("Server responds with data summary: ");
         console.log(res);
         if (res.error) {
-          console.log (res.error_message);
+          console.log(res.error_message);
           return;
         }
         this.setState({
@@ -458,13 +489,23 @@ class Stats extends Component {
       var spaces = 10 - progXs;
       var progressASCIIexes = "x ".repeat(progXs);
       var progressASCIIunderscores = "_ ".repeat(spaces);
+      var color;
+      if (progXs <= 3) {
+        color = "red";
+      }
+      else if (progXs <= 6) {
+        color = "orange"
+      }
+      else if (progXs <= 9) {
+        color = "yellow"
+      }
 
       var progressbar = (
         <div className="col-6 offset-3">
           <div className="text-center" id="progressbar" >
             <h4>Progress Bar ({this.state.progress}%)</h4>
             <p style={{ "fontFamily": "monospace", "fontSize": "32px", "fontWeight": "bold" }}>
-              | <span style={{ "color": "red" }}>{progressASCIIexes}</span>{progressASCIIunderscores}|
+              | <span style={{ "color": color }}>{progressASCIIexes}</span>{progressASCIIunderscores}|
           </p>
             <br />
             <p>Keep going! Hit 100% to unlock your caloric analysis!</p>
@@ -475,53 +516,53 @@ class Stats extends Component {
       var progressbar = false;
       var dashboard = (<div className="card-deck">
 
-          <div className="col-4">
-            <div className="card border border-danger" >
-              <div className="card-body">
-                <h4 className="card-title text-center">Calories</h4>
-                <h6 className="card-subtitle mb-2 text-muted text-center">In and Out</h6>
-                <p className="card-text">
-                  <strong>Daily Caloric Needs:</strong> {this.state.data.daily_kcal_needs} Kcal</p>
-                  <p className="card-text">
-                  <strong>Daily Caloric Expenditure:</strong> {this.state.data.daily_kcal_burn} Kcal</p>
-                  <p className="card-text">
-                  <strong>Daily Caloric Delta:</strong> {this.state.data.kcal_delta} Kcal  </p>
+        <div className="col-4">
+          <div className="card border border-danger" >
+            <div className="card-body">
+              <h4 className="card-title text-center">Calories</h4>
+              <h6 className="card-subtitle mb-2 text-muted text-center">In and Out</h6>
+              <p className="card-text">
+                <strong>Daily Caloric Needs:</strong> {this.state.data.daily_kcal_needs} Kcal</p>
+              <p className="card-text">
+                <strong>Daily Caloric Expenditure:</strong> {this.state.data.daily_kcal_burn} Kcal</p>
+              <p className="card-text">
+                <strong>Daily Caloric Delta:</strong> {this.state.data.kcal_delta} Kcal  </p>
 
-             
-              </div>
+
             </div>
           </div>
-
-          <div className="col-4">
-            <div className="card border border-danger" >
-              <div className="card-body">
-                <h4 className="card-title text-center">Weight</h4>
-                <h6 className="card-subtitle mb-2 text-muted text-center">Current and Delta</h6>
-                <p className="card-text">
-                  <strong>Weight:</strong> {this.state.data.cur_weight} pounds
-                </p>  
-                <p className="card-text">
-                  <strong>Weight Change:</strong> {this.state.data.weight_delta} pounds per week   </p>                 
-                  </div>
-            </div>
-          </div>
-
-          <div className="col-4">
-            <div className="card border border-danger" >
-              <div className="card-body">
-                <h4 className="card-title text-center">Goals</h4>
-                <h6 className="card-subtitle mb-2 text-muted text-center">Squad and Otherwise</h6>
-                <p className="card-text">
-                  <strong>To lose weight: </strong>  at [] Kcal / day
-                </p>  
-                <p className="card-text">
-                  <strong>To gain weight:</strong> eat [] Kcal / day
-                </p>  
-              </div>
-            </div>
-          </div>
-
         </div>
+
+        <div className="col-4">
+          <div className="card border border-danger" >
+            <div className="card-body">
+              <h4 className="card-title text-center">Weight</h4>
+              <h6 className="card-subtitle mb-2 text-muted text-center">Current and Delta</h6>
+              <p className="card-text">
+                <strong>Weight:</strong> {this.state.data.cur_weight} pounds
+                </p>
+              <p className="card-text">
+                <strong>Weight Change:</strong> {this.state.data.weight_delta} pounds per week   </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-4">
+          <div className="card border border-danger" >
+            <div className="card-body">
+              <h4 className="card-title text-center">Goals</h4>
+              <h6 className="card-subtitle mb-2 text-muted text-center">Squad and Otherwise</h6>
+              <p className="card-text">
+                <strong>To lose weight: </strong>  at [] Kcal / day
+                </p>
+              <p className="card-text">
+                <strong>To gain weight:</strong> eat [] Kcal / day
+                </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
       )
     }
 
@@ -542,10 +583,21 @@ class Stats extends Component {
 
         </div>
 
-          {progressbar}
-          {dashboard}
+        {progressbar}
+        {dashboard}
 
- 
+        <div className="row text-center">
+
+
+          <div className="col">
+            <hr />
+            <h4>Delete all my data</h4>
+            <p>For testing, press this button to delete all of your weight data</p>
+            <button className="btn btn-danger" onClick={this.handleDelete}><i class="fa fa-trash-o" aria-hidden="true"></i> Delete My Data</button>
+          </div>
+        </div>
+
+
 
       </div >
 
@@ -630,21 +682,34 @@ class App extends Component {
     } catch (e) {
       console.log("Failed to fetch message: ", e);
     }
+
+    // TODO: Use redux next time. This is so hacky.
+    setInterval(() => {
+      // console.log("Login state sniffer");
+      // console.log(sessionStorage.authed);
+      if (sessionStorage.authed === "true") {
+        this.setState({ authed: true });
+      }
+      else if (this.state.authed === true && sessionStorage.authed !== "true") {
+        this.setState({ authed: false })
+      }
+    }, 100);
+
+
   }
 
   render() {
-    console.log("# # # Rendering the app!");
+    // console.log("# # # Rendering the app!");
     return (
-
       <div className="App">
         <Router>
           <div>
             <main role="main" className="container">
 
-              <Nav />
+              <Nav authed={this.state.authed} />
               <div className="jumbotron text-center">
                 <h1>Data Body</h1>
-                <h4>Calories and Weight as Math</h4>
+                <h4>Calorie Data from Weight and Math</h4>
               </div>
               <Route exact path="/" component={Home} />
               <Route path="/register" component={Register} />
@@ -661,6 +726,7 @@ class App extends Component {
               <PrivateRoute path="/stats" component={Stats} />
               <PrivateRoute path="/protected" component={Protected} />
               <br />
+              <hr />
             </main>
           </div>
         </Router>
@@ -682,35 +748,58 @@ const PrivateRoute = ({ component: Component, ...rest }) => (
   )} />)
 
 
-const Nav = () => (
-  <nav className="navbar navbar-expand-lg navbar-light bg-light justify-content-between">
-    <Link to="/" className="navbar-brand"><img src="databodylogosmall.jpg" alt="brand image" /></Link>
-    <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span className="navbar-toggler-icon"></span>
-    </button>
-    <div className="collapse navbar-collapse" id="navbarNav">
-      <ul className="navbar-nav">
-        <li className="nav-item">
-          <Link to="/weigh" className="nav-link">Weigh-in</Link>
-        </li>
-        <li className="nav-item">
-          <Link to="/stats" className="nav-link">Stats</Link>
-        </li>
-        <li className="nav-item">
-          <Link to="/protected" className="nav-link">|Protected|</Link>
-        </li>
-        <li className="nav-item">
-          <Link to="/register" className="nav-link">Register</Link>
-        </li>
-        <li className="nav-item">
-          <Link to="/login" className="nav-link">Login</Link>
-        </li>
-        <li className="nav-item">
-          <Link to="/logout" className="nav-link">Logout</Link>
-        </li>
-      </ul>
-    </div>
-  </nav>)
+class Nav extends Component {
+  render() {
+    if (this.props.authed) {
+      var logoutLink = (<li className="nav-item">
+        <Link to="/logout" className="nav-link">
+          <i class="fa fa-sign-out" aria-hidden="true"></i> Logout
+      </Link></li>);
+      var weighinLink = (<li className="nav-item">
+        <Link to="/weigh" className="nav-link"><i class="fa fa-balance-scale" aria-hidden="true"></i> Weigh-in
+      </Link></li>);
+      var statsLink = (<li className="nav-item">
+        <Link to="/stats" className="nav-link"><i class="fa fa-user" aria-hidden="true"></i> Stats
+        </Link></li>);
+
+      var loginLink = false;
+      var registerLink = false;
+    }
+    else {
+      var weighinLink = false;
+      var statsLink = false;
+      var logoutLink = false;
+
+      var registerLink = (<li className="nav-item">
+        <Link to="/register" className="nav-link"><i class="fa fa-handshake-o" aria-hidden="true"></i> Register</Link>
+      </li>);
+      var loginLink = (<li className="nav-item">
+        <Link to="/login" className="nav-link"><i class="fa fa-sign-in" aria-hidden="true"></i> Login</Link>
+      </li>);
+    }
+    return (
+      <nav className="navbar navbar-expand-lg navbar-light bg-light justify-content-between">
+        <Link to="/" className="navbar-brand"><img src="databodylogosmall.jpg" alt="brand image" /></Link>
+        <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span className="navbar-toggler-icon"></span>
+        </button>
+
+        <div className="collapse navbar-collapse" id="navbarNav">
+
+          <ul className="navbar-nav mr-auto">
+            {weighinLink}
+            {statsLink}
+
+          </ul>
+          <ul className="navbar-nav">
+            {registerLink}
+            {loginLink}
+            {logoutLink}
+          </ul>
+        </div>
+      </nav>)
+  }
+}
 
 function logoutFetch() {
   // fetch data summary

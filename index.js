@@ -166,12 +166,44 @@ app.get('/getallweights', function (req, res) {
   });
 });
 
+// Temporarily populate app with fake data
+app.get('/fakemydata', function (req, res) {
+  console.log(`### FAKE MY DATA: Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
+  if (!req.session.loggedin) {
+    console.log("Error: Unauthorized GET fake-my-data request");
+    res.json({
+      error: true,
+      error_message: "ERROR: Session error; unauthorized. Probably Eric's fault"
+    });
+    return;
+  }
+  // turn on the fake data flag
+  req.session.fakedata = true;
+  res.json({ error: false, error_message: '' });
+});
+
 // routes for testing purposes only
 app.get('/logout', function (req, res) {
   console.log(`### Logout: Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
   req.session.loggedin = false;
   req.session.username = '';
   res.json("Logout complete");
+});
+
+// routes for testing purposes only
+app.get('/deletemydata', function (req, res) {
+  console.log(`### Delete My Data: Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
+
+  // Check to see if username is already registered
+  var name_check_query = "SELECT * FROM databody_users WHERE username = $1";
+  var name_check_values = [username];
+  // console.log(name_check_query + " . . . " + name_check_values[0]);
+
+  client.query(name_check_query, name_check_values)
+
+
+  res.json({ error: false, error_message: '' });
+
 });
 
 
@@ -213,7 +245,7 @@ app.post('/login', function (req, res) {
         }
         else {
           // console.log("Username/password mismatch!");
-          login_response_object.error_message = "Error: Your login didn't work";
+          login_response_object.error_message = "Login refused. Wrong pw and/or username.";
           login_response_object.error = true;
           res.json(login_response_object);
         }
@@ -227,10 +259,13 @@ app.post('/addweight', function (req, res) {
   if (!req.session.loggedin) {
     console.log("Error: Unauthorized add weight POST route request");
     res.json({
-      error: true, 
-      error_message: "ERROR: Session error; unauthorized. Probably Eric's fault" });
+      error: true,
+      error_message: "ERROR: Session error; unauthorized. Probably Eric's fault"
+    });
     return;
   }
+  // real data added, so turn off the fake data
+  req.session.fakedata = false;
   // node.js boiilterplate for handling a body stream from PUT
   let body = [];
   req.on('data', (chunk) => {
@@ -266,10 +301,11 @@ app.post('/addweight', function (req, res) {
 app.get('/userdataraw', function (req, res) {
   console.log(`### USER DATA RAW: Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
   if (!req.session.loggedin) {
-    console.log("Error: Unauthorized GET data route request");
+    console.log("Error: Unauthorized GET userdataraw route request");
     res.json({
-      error: true, 
-      error_message: "ERROR: Session error; unauthorized. Probably Eric's fault" });
+      error: true,
+      error_message: "ERROR: Session error; unauthorized. Probably Eric's fault"
+    });
     return;
   }
   var username = req.session.username;
@@ -297,14 +333,38 @@ app.get('/userdataraw', function (req, res) {
 app.get('/userdatasummary', function (req, res) {
   console.log(`### USER DATA SUMMARY: Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
   if (!req.session.loggedin) {
-    console.log("Error: Unauthorized GET data route request");
+    console.log("Error: Unauthorized GET userdatasummary route request");
     res.json({
-      error: true, 
-      error_message: "ERROR: Session error; unauthorized. Probably Eric's fault" });
+      error: true,
+      error_message: "ERROR: Session error; unauthorized. Probably Eric's fault"
+    });
     return;
   }
 
   var username = req.session.username;
+  // if the fake-my-data flag is on, skip the function and respond with fake data
+  if (req.session.fakedata) {
+    var data_summary = {
+      username: "Fake test data",
+      userid: 0,
+      height: 68,
+      age: 30,
+      activity: 2,
+      weights: [],
+      progress: 101,
+      daily_kcal_needs: 1600,
+      daily_kcal_burn: 2300,
+      kcal_delta: 700,
+      cur_weight: 145,
+      weight_delta: -1.2,
+      error: false,
+      error_message: '',
+      status_message: 'Fake Testing Data. Add a weight to turn off the fake data.'
+    }
+    res.json(data_summary);
+    return;
+  }
+
   var data_summary = {
     username: username,
     userid: -1,
@@ -320,6 +380,7 @@ app.get('/userdatasummary', function (req, res) {
     weight_delta: -1,
     error: false,
     error_message: '',
+    status_message: ''
   }
 
   var name_check_query = "SELECT * FROM databody_users WHERE username = $1";
@@ -347,8 +408,8 @@ app.get('/userdatasummary', function (req, res) {
           }
 
           // TODO: Improve this formula
-          data_summary.progress = parseInt((data_summary.weights.length / 30 ) * 100, 10);
-          if (data_summary.progress > 100){
+          data_summary.progress = parseInt((data_summary.weights.length / 10) * 100, 10);
+          if (data_summary.progress > 100) {
             data_summary.progress = 100;
           }
 

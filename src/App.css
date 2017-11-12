@@ -11,6 +11,9 @@
   background-color: rgb(58, 11, 11);
 }
 
+button:hover{
+  cursor: pointer;
+}
 p {
   color: rgb(43, 4, 4);  
 }
