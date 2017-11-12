@@ -146,7 +146,7 @@ app.post('/register', function (req, res) {
 // routes for testing purposes only
 app.get('/getallusers', function (req, res) {
   console.log(`### GET ALL USERS: Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
-  
+
   // console.log("Get messages endpoint hit");
   client.query('SELECT * FROM databody_users ORDER BY username', (err, response) => {
     if (err) throw err;
@@ -214,7 +214,7 @@ app.post('/login', function (req, res) {
 
 app.post('/addweight', function (req, res) {
   console.log(`### ADD WEIGHT: Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
-  if(!req.session.loggedin){
+  if (!req.session.loggedin) {
     console.log("Error: Unauthorized add weight POST route request");
     res.json("ERROR: Session error; unauthorized. Probably Eric's fault");
     return;
@@ -252,19 +252,106 @@ app.post('/addweight', function (req, res) {
 }); // end add weight
 
 app.get('/userdataraw', function (req, res) {
-  // return the user's raw weight data
-  console.log("### USERDATARAW ###");
+  console.log(`### USER DATA RAW: Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
+  if (!req.session.loggedin) {
+    console.log("Error: Unauthorized GET data route request");
+    res.json("ERROR: Session error; unauthorized. Probably Eric's fault.");
+    return;
+  }
+  var username = req.session.username;
+  var name_check_query = "SELECT * FROM databody_users WHERE username = $1";
+  var name_check_values = [username];
+  // console.log(name_check_query + " . . . " + name_check_values[0]);
+
+  client.query(name_check_query, name_check_values)
+    .then(resolve => {
+      var userid = resolve.rows[0].userid;
+      var query_string_insert = "SELECT * FROM databody_weights WHERE userid =$1";
+      var values = [userid];
+      console.log(query_string_insert);
+      console.log(values);
+      client.query(query_string_insert, values)
+        .then(resolve => {
+          res.json(resolve.rows);
+        })
+
+    });
 
 
-  res.json({ message: "userdataraw route not implemented yet" });
 });
 
 app.get('/userdatasummary', function (req, res) {
-  // process and return information about the user
-  console.log("### USERDATASUMMARY ###");
-  res.json({ message: "userdatasummary route not implemented yet" });
+  console.log(`### USER DATA SUMMARY: Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
+  if (!req.session.loggedin) {
+    console.log("Error: Unauthorized GET data route request");
+    res.json("ERROR: Session error; unauthorized. Probably Eric's fault.");
+    return;
+  }
 
-});
+  var username = req.session.username;
+  var data_summary = {
+    username: username,
+    userid: -1,
+    height: -1,
+    age: -1,
+    activity: -1,
+    weights: [],
+    progress: -1,
+    daily_kcal_needs: -1,
+    daily_kcal_burn: -1,
+    kcal_delta: -1,
+    cur_weight: -1,
+    weight_delta: -1,
+    error: false,
+    error_message: '',
+  }
+
+  var name_check_query = "SELECT * FROM databody_users WHERE username = $1";
+  var name_check_values = [username];
+
+  client.query(name_check_query, name_check_values)
+    .then(resolveUser => {
+      // store user table data for response
+      data_summary.userid = resolveUser.rows[0].userid;
+      data_summary.height = resolveUser.rows[0].height;
+      data_summary.age = resolveUser.rows[0].age;
+      data_summary.activity = resolveUser.rows[0].activity;
+
+      // Prepare to get weight data
+      var weights_query = "SELECT * FROM databody_weights WHERE userid =$1";
+      var values = [data_summary.userid];
+      client.query(weights_query, values)
+        .then(resolveWeights => {
+          for (let i = 0; i < resolveWeights.rows.length; i++) {
+            let weight_pair = {};
+            weight_pair.stamp = resolveWeights.rows[i].stamp;
+            weight_pair.weight = resolveWeights.rows[i].weight;
+            data_summary.weights.push(weight_pair);
+          }
+
+          // TODO: Improve this formula
+          data_summary.progress = parseInt((data_summary.weights.length / 30 ) * 100, 10);
+          if (data_summary.progress > 100){
+            data_summary.progress = 100;
+          }
+          
+          // calculate Harris Benedict Equation - BMR * activity factor
+
+          // get user's weight history 
+
+          // If less than 30 data points, return
+
+          // If more than 30 data points, 
+
+          // Run calculations on the resulting data:
+          // y = mx + B
+
+          // current weight
+
+          res.json(data_summary);
+        }); // end weights table then
+    }); // end user table then
+}); // end data summary route
 
 // Serve static assets built by create-react-app
 app.use(express.static('build'));

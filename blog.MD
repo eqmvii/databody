@@ -62,4 +62,14 @@ Back in the groove after dinner and a bit of rest. Added the add-weight route wi
 
 ALSO MORE CAFFEINE IS HELPING.
 
+## Midnight, again.
+
+#### T+30.5 hours
+
+It's getting late but things are starting to come together! I'll try to code for a few more hours so I can dedicate as much of the final day to tweaks and style as possible.
+
+My main database interfacing routes are complete and I've got something visible for all of my views. "All" that's left is the main business logic and the resulting dashboard, plus updating the register form, plus graphics works, plus...
+
+Maybe I need more coffee...
+
 - - - - - - - - 

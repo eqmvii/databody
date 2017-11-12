@@ -82,9 +82,7 @@ class NewLoginForm extends Component {
 
     if (this.state.loggedin) {
       console.log("You're logged in...");
-      return (<Redirect to={{
-        pathname: '/stats'
-      }} />);
+      return (<Redirect to={{ pathname: '/stats' }} />);
     }
     else {
       var error_message = false;
@@ -221,12 +219,6 @@ class RegisterForm extends Component {
       })
       .catch(err => console.log(err));
 
-    //alert("Tryin' to register I see!");
-    /*
-        sessionStorage.authed = "true";
-        console.log(`Login clicked. Authed: ${sessionStorage.authed}`);
-        this.setState({ loggedin: true });
-        */
   }
 
   render() {
@@ -295,7 +287,6 @@ const Login = () => (
   </div>
 )
 
-// TODO: Handle form number selection issues and parsing
 class Weigh extends Component {
   constructor(props) {
     super(props);
@@ -303,9 +294,10 @@ class Weigh extends Component {
     this.handleFormChange = this.handleFormChange.bind(this);
 
     this.state = {
-      weight: 0,
+      weight: '',
       message: '',
       username: sessionStorage.username,
+      posted: false
     }
 
   }
@@ -342,12 +334,15 @@ class Weigh extends Component {
       .then(res => {
         console.log("Server responds: ");
         console.log(res);
-        this.setState({ weight: 0, message: res });
+        this.setState({ weight: '', message: res, posted: true });
       })
       .catch(err => console.log(err));
   }
 
   render() {
+    if (this.state.posted) {
+      return (<Redirect to={{ pathname: '/stats' }} />);
+    }
     if (this.state.message) {
       var response_message = (<div className="alert alert-success"><strong>Success: </strong>{this.state.message}</div>);
     }
@@ -366,11 +361,14 @@ class Weigh extends Component {
             <div className="form-group">
               <label htmlFor="weightinput">Current Weight</label>
               <input
-                className="form-control col-4 offset-4"
+                className="form-control col-2 offset-5"
                 id="weightinput"
                 name="weight"
-                type="text"
-                placeholder="Enter weight"
+                type="number"
+                min="50"
+                max="500"
+                step="0.1"
+                placeholder="weight"
                 value={this.state.weight}
                 onChange={this.handleFormChange} />
             </div>
@@ -403,20 +401,59 @@ class Protected extends Component {
 }
 
 class Stats extends Component {
+  constructor(props) {
+    super(props);
+    // this.handleSubmit = this.handleSubmit.bind(this);
+    // this.handleFormChange = this.handleFormChange.bind(this);
+
+    this.state = {
+      progress: '',
+      loading: true,
+      data: {},
+    }
+
+  }
+
+  componentDidMount() {
+    // fetch data summary
+    fetch('/userdatasummary', { credentials: 'include', method: "GET" })
+      .then(res => {
+        if (res.ok) {
+          return res.json()
+        } else { throw Error(res.statusTest) }
+      })
+      .then(res => {
+        console.log("Server responds with data summary: ");
+        console.log(res);
+        this.setState({
+          loading: false,
+          progress: res.progress,
+          data: res
+        })
+      })
+      .catch(err => console.log(err));
+  }
+
+
   render() {
+    if (this.state.loading) {
+      var status_message = (<p><i className="fa fa-spinner fa-spin" style={{ fontSize: "20px" }}></i></p>);
+    }
+    else {
+      var status_message = false;
+    }
     return (
       <div className="row">
         <div className="col-6 offset-3">
-          <h2 className="text-center">Hello {sessionStorage.username}! Your Stats</h2>
-          <ul>
-            <li>userid: </li>
-            <li>username: </li>
-            <li>email: </li>
-            <li>height: </li>
-            <li>age: </li>
-            <li>activity: </li>
-            <li>stamp: </li>
-          </ul>
+
+          <h2 className="text-center">Hello {sessionStorage.username}</h2>
+          <div className="text-center">
+            {status_message}
+          </div>
+          <div className="text-center">
+            <p> <strong>height:</strong> {this.state.data.height} inches | <strong>age:</strong> {this.state.data.age} years | <strong>activity level:</strong> ({this.state.data.activity}/5) </p>
+            <p>Data input progress: {this.state.progress}%</p>
+          </div>
         </div>
       </div>
     )
