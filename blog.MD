@@ -91,4 +91,10 @@ IT WORKS!
 
 It has bugs... LOTS of bugs... but it WORKS!
 
+## DEATH OR GLORY
+
+#### T+47.25 hours
+
+hack hack hack gonna be close
+
 - - - - - - - - 

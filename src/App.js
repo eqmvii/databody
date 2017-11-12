@@ -15,7 +15,8 @@ import {
 } from 'react-router-dom'
 
 // import images because of course it's javascript all the way down
-import weightchart from './weightchart.png'; 
+import weightchart from './weightchart.png';
+// image hacked together from a free logo generator at o'dark thirty
 import databodylogosmall from './databodylogosmall.jpg';
 
 class LoginForm extends Component {
@@ -135,7 +136,6 @@ class LoginForm extends Component {
 }
 
 class Home extends Component {
-
   componentDidMount() {
     // TODO ALARMA: auto login if there's already a session
     // seriously do it
@@ -149,13 +149,13 @@ class Home extends Component {
       <div>
         <div className="row">
           <div className="col-sm-8 border" id="mysplash">
-            <h3 className="text-danger">Welcome!</h3>
+            <h1 className="text-danger">Welcome!</h1>
             <p>How many Calories did you consume yesterday?</p>
             <p>Data Body can tell you, without you needing to track what you eat! Of course there is one catch - you're going to need to weigh yourself several times per day, for several days. Once you've fed the app enough weight data, it will use Math to calculate how much you've been eating.</p>
             <div className="text-center">
               <p>
-              <Link to="/register" style={{ "color": "white" }}>
-                <button className="btn btn-success">
+                <Link to="/register" style={{ "color": "white" }}>
+                  <button className="btn btn-success">
                     <i className="fa fa-handshake-o" aria-hidden="true">
                     </i> Register
                   </button></Link></p>
@@ -170,7 +170,7 @@ class Home extends Component {
           </div>
           <div className="col-sm-4" >
             <div className="border" id="loginbox">
-            <LoginForm />
+              <LoginForm />
             </div>
           </div>
         </div>
@@ -187,7 +187,6 @@ class Home extends Component {
     )
   }
 }
-
 
 class RegisterForm extends Component {
   constructor(props) {
@@ -237,7 +236,6 @@ class RegisterForm extends Component {
     }
 
     // no validation errors, so attempt to register:
-
     var registration = {};
     registration.username = this.state.username;
     registration.password = this.state.password;
@@ -375,8 +373,6 @@ class RegisterForm extends Component {
           </div>
           <br />
 
-
-
           <div className="text-center">
             <button type="submit" className="btn btn-lg btn-success" onClick={this.handleRegister}><i className="fa fa-handshake-o" aria-hidden="true"></i> Register</button>
           </div>
@@ -384,6 +380,83 @@ class RegisterForm extends Component {
     }
   }
 }
+
+
+const About = () => (
+  <div className="row">
+    <div className="col-sm-8 offset-2">
+      <h1>About</h1><br />
+      
+      <p>
+        Data Body was made by <a href="https://github.com/eqmvii">Eric Mancini</a> for the 2017 <a href="https://www.nodeknockout.com/">Node Knockout</a> 48-hour hackathon.
+      </p>
+      <br />
+      <h3>The Premise</h3><br />
+      <p>
+        Given a large volume of data about a person's weight, simple linear regression and known <a href="https://en.wikipedia.org/wiki/Harris–Benedict_equation">equations</a> about metabolic rate can be used to approximate average caloric intake ("calories in") and metabolic rate ("calories out"). That's cool, because actually counting what you eat is a lot harder than just stepping on the scale a lot. Not everything has a good nutrition label, food scales get annoying to use quickly, etc.
+      </p>
+
+      <br />
+      <h3>How it Works</h3><br />
+      <p>
+        After registering for an account, a user can only do one thing: enter their weight. When the weight is entered, it's added to a database with a time stamp. A thrilling ~gamified~ progress bar fills as you add data. Once The Algorithm has enough quality data, the Stats page will display average daily caloric information. In my experience it takes about 10 days worth of good data (around 30 points) for the equations to even out, but for fast testing purposes the app will show information as soon as it receives 10 data points.
+      </p>
+
+      <br />
+      <h3>Background</h3><br />
+      <p>
+        Several years ago I had the idea to gather lots of weight data while trying to lose weight to see what those data looked like. The results surprised me - there was a huge fluctuation over the course of a single day! I kept tracking data, and also tracked what I ate, and found that with enough data the averages worked out beautifully: my weight loss was entirely accounted for by my activity level and caloric consumption. No surprise there, but it was a cool visual! Here's a chart from that experiment:
+    </p>
+      <p>
+        <h4 className="text-center">Weight Over Time</h4>
+        <img className="img-fluid img-thumbnail" src={weightchart} alt="scatterplot of weight data" />
+      </p>
+
+      <br />
+      <h3>FAQ</h3><br />
+
+      <ul>
+
+        <li><strong>Will this work for everyone?</strong> Probably not. But it worked well enough for me when I tried it with excel that I've always wanted to make an app to automate the process.</li>
+        <li><strong>Do you use the <a href="https://en.wikipedia.org/wiki/Harris–Benedict_equation">equation</a> for men or for women?</strong>An average of the two, for simplicity, and to avoid hacking together something with only a binary choice.</li>
+        <li><strong>Linear regression won't work over the long term!</strong> Probably not. A better version of the app would limit the analysis to a medium time frame, like a few weeks. This is not that app.</li>
+      </ul>
+
+      <h3>Technical Details</h3><br />
+      <p>
+        The back-end is Node.js/Express/PostgreSQL plus a few helper libraries (express-session, regression, etc.). The front-end is React, via Create-React-App, with React-Router for routing.
+      </p>
+      <p>
+        I probably should have used Redux but hacked something together using sessionStorage and duct tape and prayer instead. Lessons for next time!
+      </p>
+
+      <br />
+      <h3>Bugs, Known Issues, and "Features"</h3><br />
+      <p>
+        As the product of a hackathon, a lot isn't quite right or could be expanded upon. Here's an incomplete list:
+    </p>
+      <ul>
+        <li><strong>Testing time frame:</strong> Unfortunately the app doesn't really "work" without over a week of feeding it data, so it's hard to get a good sense for it in a single sitting. More buttons to simulate adding data was high on my "ran out of time to do it" list.</li>
+        <li><strong>Data validation:</strong> There is very little. Also weights are accidentally stored as an integer in the DB but I wanted a decimal so they get multiplied by 10 going in and divided by 10 going out. Yes this is a quality codebase why thank you for noticing.</li>
+        <li><strong>Units:</strong> The app only uses pounds and inches, unfortunately. TODO: add unit conversion for input and output.</li>
+        <li><strong>Mobile/responsive design:</strong> Most of the app is broken on mobile/small screens. I was hoping it would work out-of-the box, but bootstrap V4 had other ideas and I ran out of time to fix it.</li>
+     <li><strong>Back-end session storage:</strong> The back end lacks session storage and that's critically bad but oh hey look the hackathon is already over! Mistakes were made those accountable will be held responsible.</li>
+     <li><strong>Cookies/browser storage: </strong> There are bugs. It is known.</li>
+     <li><strong>Data editing:</strong> It would be nice to be able to delete or edit data. Rome wasn't built in a day!</li>
+     <li><strong>Password security:</strong>Yeah. At least this way it's not a honeypot! Hashing, salting, etc. would be good.</li>
+     <li><strong>Cell phone data entry:</strong> Using something like Twilio to allow for data entry by text message would be awesome!</li>
+      <li><strong>Wow there are a lot of typos:</strong> Running out of time must deploy can't sleep clowns will eat me you're lucky I closed all of these HTML tags and the thing compiled ok?</li>
+      </ul>
+
+      <br />
+      <h3>About me</h3><br />
+      <p>
+      I've been self-teaching coding and web design for about a year. This is my first hackathon, and my most ambitious node.js application to date. I am very tired and would like a nap.
+      </p>
+    </div>
+  </div>
+
+)
 
 const Register = () => (
   <div className="row">
@@ -480,7 +553,7 @@ class Weigh extends Component {
       var response_message = (<div className="alert alert-danger text-center"><strong>Error</strong> <p>{this.state.error}</p></div>);
     }
     else {
-      var response_message = false; 
+      var response_message = false;
     }
     return (
       <div className="row">
@@ -661,14 +734,17 @@ class Stats extends Component {
             <div className="col-4">
               <div className="card border border-danger" >
                 <div className="card-body">
-                  <h4 className="card-title text-center">Daily Calories</h4>
+                  <h4 className="card-title text-center text-danger">Daily Calories</h4>
                   <h6 className="card-subtitle mb-2 text-muted text-center">burned and consumed</h6>
+
+                  <br />
                   <p className="card-text">
-                    <strong>You burn:</strong> {parseInt(this.state.data.daily_kcal_needs,10).toLocaleString()} Kcal per day</p>
+                    At your activity level and size, you burn roughly <strong> {parseInt(this.state.data.daily_kcal_needs, 10).toLocaleString()} </strong> kcal per day.</p>
                   <p className="card-text">
-                    <strong>You consume:</strong> {parseInt(this.state.data.daily_kcal_burn,10).toLocaleString()} Kcal</p>
+                    Based on your weight data points, you consume an average of <strong> {parseInt(this.state.data.daily_kcal_burn, 10).toLocaleString()} </strong> kcal per day.</p>
                   <p className="card-text">
-                    <strong>For a difference of:</strong> {parseInt(this.state.data.kcal_delta,10).toLocaleString()} Kcal  </p>
+                    As a result, on average there is a <strong> {parseInt(this.state.data.kcal_delta, 10).toLocaleString()} </strong> kcal differential every day (for reference, there are about 3,500 kcal in a pound of fat)
+                  </p>
 
 
                 </div>
@@ -678,13 +754,23 @@ class Stats extends Component {
             <div className="col-4">
               <div className="card border border-danger" >
                 <div className="card-body">
-                  <h4 className="card-title text-center">Weight</h4>
-                  <h6 className="card-subtitle mb-2 text-muted text-center">curret and direction</h6>
-                  <p className="card-text">
-                    <strong>You Weigh:</strong> {parseFloat(this.state.data.cur_weight).toLocaleString()} pounds
-                </p>
-                  <p className="card-text">
-                    <strong>That changes by:</strong> {this.state.data.weight_delta} pounds per week   </p>
+                  <h4 className="card-title text-center text-danger">Weight</h4>
+                  <h6 className="card-subtitle mb-2 text-muted text-center">based on averages</h6>
+
+                  <br />
+                  <p className="card-text text-center">
+                    You weigh roughly:
+                    </p>
+                    <p className="card-text text-center">
+                    <strong>{parseFloat(this.state.data.cur_weight).toLocaleString()} pounds</strong>
+                    </p> 
+
+                  <p className="card-text text-center">
+                    Your weight changes by roughly:
+                    </p>
+                    <p className="card-text text-center">
+                    <strong>{this.state.data.weight_delta} pounds per week </strong> 
+                    </p>
                 </div>
               </div>
             </div>
@@ -692,13 +778,15 @@ class Stats extends Component {
             <div className="col-4">
               <div className="card border border-danger" >
                 <div className="card-body">
-                  <h4 className="card-title text-center">Targets</h4>
+                  <h4 className="card-title text-center text-danger">Targets</h4>
                   <h6 className="card-subtitle mb-2 text-muted text-center">for weight gain or loss</h6>
+
+                  <br />
                   <p className="card-text">
-                    Consume {parseInt(this.state.data.minus_a_pound,10).toLocaleString()} Kcal per day to lose 1 pound per week
+                    Consume around {parseInt(this.state.data.minus_a_pound, 10).toLocaleString()} Kcal per day to lose 1 pound per week
                 </p>
                   <p className="card-text">
-                    Eat {parseInt(this.state.data.plus_a_pound,10).toLocaleString()} Kcal per day to gain 1 pound per week
+                    Alternatively, consume around {parseInt(this.state.data.plus_a_pound, 10).toLocaleString()} Kcal per day to gain 1 pound per week
                 </p>
                 </div>
               </div>
@@ -736,17 +824,16 @@ class Stats extends Component {
 
         <div className="row text-center">
           <div className="col">
-          <Link to="/weigh" style={{ "color": "black" }}>
-            <button className="btn btn-lg btn-warning">
-             
-                <i className="fa fa-balance-scale" aria-hidden="true">
+            <Link to="/weigh" style={{ "color": "black" }}>
+              <button className="btn btn-lg btn-warning">
+
+                <i className="fa fa-tachometer" aria-hidden="true">
                 </i> Weigh-in
             </button></Link>
           </div>
         </div>
 
         <div className="row text-center">
-
 
           <div className="col">
             <hr />
@@ -756,15 +843,14 @@ class Stats extends Component {
           </div>
         </div>
 
-
-
       </div >
 
     )
   }
 }
 
-
+// old routing example code
+/*
 const Topic = ({ match }) => (
   <div>
     <h3>{match.params.topicId}</h3>
@@ -798,8 +884,10 @@ const Topics = ({ match }) => (
     )} />
   </div>
 )
+*/
 
 // old routing example
+/*
 const BasicExample = () => (
   <Router>
     <div>
@@ -814,7 +902,7 @@ const BasicExample = () => (
       <Route path="/topics" component={Topics} />
     </div>
   </Router>
-)
+)*/
 
 
 class App extends Component {
@@ -873,6 +961,7 @@ class App extends Component {
               <Route exact path="/" component={Home} />
               <Route path="/register" component={Register} />
               <Route path="/login" component={Login} />
+              <Route path="/About" component={About} />
               <Route path="/logout" render={() => {
                 // TODO: Make this less hacky
                 console.log("logout clicked, logging out...");
@@ -914,7 +1003,7 @@ class Nav extends Component {
           <i className="fa fa-sign-out" aria-hidden="true"></i> Logout
       </Link></li>);
       var weighinLink = (<li className="nav-item">
-        <Link to="/weigh" className="nav-link"><i className="fa fa-balance-scale" aria-hidden="true"></i> Weigh-in
+        <Link to="/weigh" className="nav-link"><i className="fa fa-tachometer" aria-hidden="true"></i> Weigh-in
       </Link></li>);
       var statsLink = (<li className="nav-item">
         <Link to="/stats" className="nav-link"><i className="fa fa-user" aria-hidden="true"></i> Stats
@@ -945,6 +1034,9 @@ class Nav extends Component {
         <div className="collapse navbar-collapse" id="navbarNav">
 
           <ul className="navbar-nav mr-auto">
+            <li className="nav-item">
+              <Link to="/about" className="nav-link"><i className="fa fa-info" aria-hidden="true"></i> About</Link>
+            </li>
             {weighinLink}
             {statsLink}
 

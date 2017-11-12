@@ -6,8 +6,6 @@ const session = require('express-session');
 const regression = require('regression');
 
 
-// TODO: Add express-session to protect routes
-
 const PORT = process.env.PORT || 3001;
 
 // configure database connection based on environment
@@ -193,7 +191,7 @@ app.get('/logout', function (req, res) {
 });
 
 // Delete all of the users data
-// TODO: idk make this not a GET route come on Eric
+// TODO: idk make this not a GET route come on Eric it's obviously deletion
 app.get('/deletemydata', function (req, res) {
   console.log(`### DELETE My Data: Loggedin: ${req.session.loggedin}, un: ${req.session.username}, #: ${req.session.mycounter}`);
   if (!req.session.loggedin) {
@@ -372,19 +370,19 @@ app.get('/userdatasummary', function (req, res) {
     var data_summary = {
       username: "Fake test data",
       userid: 0,
-      height: 68,
+      height: 69,
       age: 30,
-      activity: 2,
+      activity: 3,
       weights: [],
       lin_reg_weights: [],
       progress: 101,
-      daily_kcal_needs: 1600,
-      daily_kcal_burn: 2300,
-      kcal_delta: 700,
-      cur_weight: 145.23,
+      daily_kcal_needs: 2670,
+      daily_kcal_burn: 2070,
+      kcal_delta: -600,
+      cur_weight: 145,
       weight_delta: -1.2,
-      plus_a_pound: 3300,
-      minus_a_pound: 1300,
+      plus_a_pound: 3170,
+      minus_a_pound: 2170,
       error: false,
       error_message: '',
       status_message: 'Fake test data being used.',
@@ -459,7 +457,8 @@ app.get('/userdatasummary', function (req, res) {
 
               // TESTING HACK ALARMA !!! TODO UNDO THIS !!!!
               // Add a day between data points for sanity
-              time_elapsed += i;
+              // time_elapsed += i;
+              // TODO: TEST HACK ALARM !!! comment out the above line
 
               console.log(`Days elapsed: ${time_elapsed}`);
               temp_pair[0] = time_elapsed;              
@@ -471,7 +470,8 @@ app.get('/userdatasummary', function (req, res) {
             weight_pair.stamp = resolveWeights.rows[i].stamp;
             weight_pair.weight = resolveWeights.rows[i].weight / 10;
             data_summary.weights.push(weight_pair);
-            // TODO Hack/fix
+            // TODO Hack/fix right now current weight is just the last measured weight
+            // TODO: Make it average the last X data points or something
             if (i === resolveWeights.rows.length - 1) {
               data_summary.cur_weight = resolveWeights.rows[i].weight / 10;
             }
