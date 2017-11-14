@@ -1,15 +1,15 @@
 
 # DataBody
 
-Eric Mancini's NKO 2017 hackathon project
+My 48-hour [NKO 2017 hackathon submission](https://www.nodeknockout.com/entries/285-eqmvii).
 
-This is my first real hackathon! What could possibly go wrong!
+A React/Node/PostgreSQL application that allows a user to track their weight over time and uses that data to calculate and display their average caloric consumption.
 
-Current Status: First draft done with 2.5 hours to spair!
+Deployed version from the hackathon: https://databody.herokuapp.com
 
-Check blog.MD in the file list for more details of the process! 
+This version is stored in my personal github repositories, but only the readme has been updated since the app was submitted to the hackathon. All typos, bugs, issues, hacks, and "features" remain from the 48-hour sprint. 
 
-Production heroku version: https://databody.herokuapp.com
+Here's a [development blog](https://github.com/Hackbit/nko2017-eqmvii/blob/master/blog.MD) written during the hackathon.
 
 # Development info / record keeping
 
