@@ -5,6 +5,8 @@
 "Ready" to submit!
 */
 
+// ### UPDATES: Notes for presentation marked with three ###s 
+
 import React, { Component } from 'react';
 import './App.css';
 import {

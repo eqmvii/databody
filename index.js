@@ -90,9 +90,11 @@ app.get('/clapoff', function (req, res, next) {
 });
 
 // Application-specific routes
+/*
 app.get('/example-path', async (req, res, next) => {
   res.json({ message: "Hello NKO World! This text came from the server. Woah!" });
 });
+*/
 
 app.post('/register', function (req, res) {
   // Check to see if username is already taken
